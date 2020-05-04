@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simplic.Change.Tracking", "Simplic.Change.Tracking\Simplic.Change.Tracking.csproj", "{3CC795A4-3FDD-4717-A888-20CA818548E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simplic.Change.Tracking.Data.DB", "Simplic.Change.Tracking.Data.DB\Simplic.Change.Tracking.Data.DB.csproj", "{77911446-7F76-4991-A42D-B1B553CB316D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simplic.Change.Tracking.Service", "Simplic.Change.Tracking.Service\Simplic.Change.Tracking.Service.csproj", "{0AD18F8C-DD13-41CB-8663-2DAF6AD86682}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ENV", "ENV", "{D09D745F-FC05-4B84-84AD-6C5915C0AB0B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		azure-pipelines.yml = azure-pipelines.yml
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3CC795A4-3FDD-4717-A888-20CA818548E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CC795A4-3FDD-4717-A888-20CA818548E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CC795A4-3FDD-4717-A888-20CA818548E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CC795A4-3FDD-4717-A888-20CA818548E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77911446-7F76-4991-A42D-B1B553CB316D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77911446-7F76-4991-A42D-B1B553CB316D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77911446-7F76-4991-A42D-B1B553CB316D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77911446-7F76-4991-A42D-B1B553CB316D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AD18F8C-DD13-41CB-8663-2DAF6AD86682}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AD18F8C-DD13-41CB-8663-2DAF6AD86682}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AD18F8C-DD13-41CB-8663-2DAF6AD86682}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AD18F8C-DD13-41CB-8663-2DAF6AD86682}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {71A01574-752C-4CB4-A498-39614F037539}
+	EndGlobalSection
+EndGlobal
