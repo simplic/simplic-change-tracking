@@ -70,7 +70,16 @@ namespace Simplic.Change.Tracking.Service
         {
             return requestChangeRepository.Save(obj);
         }
-        public virtual void TrackChange<TModel>(object obj, CrudType crudType, string tableName)
+
+        /// <summary>
+        /// Tracks the changes and saves the 
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="crudType">Either insert/update or delete</param>
+        /// <param name="tableName"></param>
+        /// <param name="snapshot">a copy</param>
+        public void TrackChange<TModel>(object obj, CrudType crudType, string tableName, object snapshot)
         {
             RequestChange requestChange = new RequestChange
             {
@@ -91,8 +100,9 @@ namespace Simplic.Change.Tracking.Service
             }
             else
             {
-               // object Snapshot = Get(GetId((TModel)obj));
-               // requestChange.JsonObject = DetailedCompare<TModel>((TModel)Snapshot, (TModel)obj);
+                snapshot = CreateDeepCopy<TModel>(snapshot);
+                //object Snapshot = Get(GetId((TModel)obj));
+                requestChange.JsonObject = DetailedCompare<TModel>((TModel)snapshot, (TModel)obj);
             }
             Save(requestChange);
         }
@@ -137,6 +147,17 @@ namespace Simplic.Change.Tracking.Service
             }
             return requestChange;
         }
-        
+
+        public bool IsTrackable<TModel>(object obj)
+        {
+            if ((TModel)obj is ITrackable)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
