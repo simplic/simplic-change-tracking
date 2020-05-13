@@ -61,11 +61,21 @@ namespace Simplic.Change.Tracking.Service
             return json;
         }
 
+        /// <summary>
+        /// Gets the Request change based on an int 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public RequestChange Get(Int64 id)
         {
             return requestChangeRepository.Get(id);
         }
 
+        /// <summary>
+        /// Saves the request changes poco into database
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public bool Save(RequestChange obj)
         {
             return requestChangeRepository.Save(obj);
@@ -114,6 +124,14 @@ namespace Simplic.Change.Tracking.Service
             return snapshot;
         }
 
+        /// <summary>
+        /// Method to check if there is any primary key 
+        /// Array contains Guid->Guid, Id ->int, Ident->int, Key->string
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="requestChange"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         private RequestChange CheckForPrimaryKey<TModel>(RequestChange requestChange, Object obj)
         {
             string[] keys = { "Guid", "Id", "Ident", "Key" };
@@ -148,6 +166,12 @@ namespace Simplic.Change.Tracking.Service
             return requestChange;
         }
 
+        /// <summary>
+        /// Return true if the obj implements the interface IsTrackable
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public bool IsTrackable<TModel>(object obj)
         {
             if ((TModel)obj is ITrackable)
