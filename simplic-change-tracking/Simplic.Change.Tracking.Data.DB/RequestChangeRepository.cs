@@ -6,7 +6,7 @@ using System;
 
 namespace Simplic.Change.Tracking.Data.DB
 {
-    public class RequestChangeRepository : SqlRepositoryBase<Guid, RequestChange>, IRequestChangeRepository
+    public class RequestChangeRepository : SqlRepositoryBase<Int64, RequestChange>, IRequestChangeRepository
     {
         private ISqlService sqlService;
         public RequestChangeRepository(ISqlService sqlService, ISqlColumnService sqlColumnService, ICacheService cacheService)
@@ -18,6 +18,30 @@ namespace Simplic.Change.Tracking.Data.DB
 
         public override string PrimaryKeyColumn => "Guid";
 
-        public override Guid GetId(RequestChange obj) => obj.Guid;
+        public override Int64 GetId(RequestChange obj) => obj.Ident;
+
+        public RequestChange get(Int64 id)
+        {
+            return sqlService.OpenConnection((c) =>
+            {
+                return c.QueryFirstOrDefault<RequestChange>($"Select * From {TableName} where Ident = :Ident",
+                    new { Ident = id });
+            });
+
+        }
+
+        public bool save(RequestChange obj)
+        {
+            string sql = $"Insert into {TableName} (Ident, JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId)" +
+                    $"Values (:Ident, :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId) ";
+
+            sqlService.OpenConnection((c) =>
+            {
+                c.Execute(sql, new {Ident = obj.Ident, JsonObject = obj.JsonObject, DataGuid = obj.DataGuid,
+                CrudType = obj.Type, TableName = obj.TableName, TimeStampChange = obj.TimeStampChange, UserId = obj.UserId});
+            });
+            return true;
+        }
+
     }
 }

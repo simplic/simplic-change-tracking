@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Simplic.Change.Tracking
 {
-    public interface IRequestChangeRepository : IRepositoryBase<Guid, RequestChange>
+    public interface IRequestChangeRepository 
     {
-    
+        bool save(RequestChange obj);
+        RequestChange get(Int64 id);
     }
 }

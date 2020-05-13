@@ -47,6 +47,7 @@
     <Compile Include="Interfaces\ITrackable.cs" />
     <Compile Include="RequestChange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Variance.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Simplic.Data">
