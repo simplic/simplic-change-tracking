@@ -9,7 +9,8 @@ namespace Simplic.Change.Tracking
 {
     public interface IRequestChangeRepository 
     {
-        bool save(RequestChange obj);
-        RequestChange get(Int64 id);
+        bool Save(RequestChange obj);
+        RequestChange Get(Int64 id);
+
     }
 }

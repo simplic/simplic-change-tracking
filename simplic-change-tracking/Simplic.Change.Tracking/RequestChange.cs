@@ -12,6 +12,8 @@ namespace Simplic.Change.Tracking
         /// Ident serves as the unique identitifer 
         /// </summary>
         public Int64 Ident { get; set; } 
+
+        
         
         /// <summary>
         /// Json string thats stores the changes
@@ -37,11 +39,21 @@ namespace Simplic.Change.Tracking
         /// <summary>
         /// Gets or sets the user id
         /// </summary>
-        public Guid UserId { get; set; }
+        public int UserId { get; set; }
 
         /// <summary>
-        /// Gets or sets the data id
+        /// Gets or sets the data id as guid
         /// </summary>
-        public Guid DataGuid { get; set; }
+        public Guid? DataGuid { get; set; }
+
+        /// <summary>
+        /// Gets or sets the data id as long
+        /// </summary>
+        public long? DataLong { get; set; }
+
+        /// <summary>
+        /// Gets or sets the data id as string
+        /// </summary>
+        public string DataString { get; set; }
     }
 }

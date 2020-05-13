@@ -32,12 +32,12 @@ namespace Simplic.Change.Tracking.Data.DB
 
         public bool save(RequestChange obj)
         {
-            string sql = $"Insert into {TableName} (Ident, JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId)" +
-                    $"Values (:Ident, :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId) ";
+            string sql = $"Insert into {TableName} ( JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId)" +
+                    $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId) ";
 
             sqlService.OpenConnection((c) =>
             {
-                c.Execute(sql, new {Ident = obj.Ident, JsonObject = obj.JsonObject, DataGuid = obj.DataGuid,
+                c.Execute(sql, new { JsonObject = obj.JsonObject, DataGuid = obj.DataGuid,
                 CrudType = obj.Type, TableName = obj.TableName, TimeStampChange = obj.TimeStampChange, UserId = obj.UserId});
             });
             return true;

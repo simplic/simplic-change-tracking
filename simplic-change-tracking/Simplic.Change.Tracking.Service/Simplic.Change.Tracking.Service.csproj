@@ -60,6 +60,9 @@
     <PackageReference Include="Simplic.Data">
       <Version>1.6.120.322</Version>
     </PackageReference>
+    <PackageReference Include="Simplic.Session">
+      <Version>6.4.20.322</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
