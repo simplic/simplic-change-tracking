@@ -4,9 +4,6 @@ using Simplic.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Simplic.Change.Tracking.Service
 {
@@ -99,7 +96,6 @@ namespace Simplic.Change.Tracking.Service
                 TimeStampChange = DateTime.Now,
                 Type = crudType,
 
-
             };
             requestChange = CheckForPrimaryKey<TModel>(requestChange, obj);
 
@@ -117,7 +113,7 @@ namespace Simplic.Change.Tracking.Service
             Save(requestChange);
         }
 
-        private TModel CreateDeepCopy<TModel>(object obj)
+        public TModel CreateDeepCopy<TModel>(object obj)
         {
             var jsonString = JsonConvert.SerializeObject(obj);
             TModel snapshot = (TModel)JsonConvert.DeserializeObject(jsonString);
@@ -156,7 +152,7 @@ namespace Simplic.Change.Tracking.Service
                             requestChange.DataString = (string)item.GetValue(obj);
                             break;
                         default:
-                            
+
                             break;
 
                     }

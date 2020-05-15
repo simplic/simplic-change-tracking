@@ -7,5 +7,7 @@ namespace Simplic.Change.Tracking
         string DetailedCompare<T>(T oldValue, T newValue);
         void TrackChange<TModel>(object obj, CrudType crudType, string tableName, object snapshot);
         bool IsTrackable<TModel>(object obj);
+        TModel CreateDeepCopy<TModel>(object obj);
+
     }
 }
