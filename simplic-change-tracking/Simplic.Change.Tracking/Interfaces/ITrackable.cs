@@ -18,6 +18,11 @@ namespace Simplic.Change.Tracking
         /// Gets or sets the snapshot
         /// </summary>
         object Snapshot { get; set; }
+
+        /// <summary>
+        /// Gets or sets the crud type - 0 = insert, 1 = update, 2 = delete
+        /// </summary>
+        CrudType CrudType { get; set; }
         
     }
 }

@@ -6,21 +6,20 @@ using System;
 
 namespace Simplic.Change.Tracking.Data.DB
 {
-    public class RequestChangeRepository : SqlRepositoryBase<Int64, RequestChange>, IRequestChangeRepository
+    public class RequestChangeRepository : IRequestChangeRepository
     {
         private ISqlService sqlService;
-        public RequestChangeRepository(ISqlService sqlService, ISqlColumnService sqlColumnService, ICacheService cacheService)
-            : base(sqlService, sqlColumnService, cacheService)
+        public RequestChangeRepository(ISqlService sqlService)
+           
         {
             this.sqlService = sqlService;
         }
-        public override string TableName => "ChangeTracking";
+        public string TableName => "ChangeTracking";
 
-        public override string PrimaryKeyColumn => "Guid";
 
-        public override Int64 GetId(RequestChange obj) => obj.Ident;
 
-        public RequestChange get(Int64 id)
+
+        public RequestChange Get(Int64 id)
         {
             return sqlService.OpenConnection((c) =>
             {
@@ -30,7 +29,7 @@ namespace Simplic.Change.Tracking.Data.DB
 
         }
 
-        public bool save(RequestChange obj)
+        public bool Save(RequestChange obj)
         {
             string sql = $"Insert into {TableName} ( JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId)" +
                     $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId) ";

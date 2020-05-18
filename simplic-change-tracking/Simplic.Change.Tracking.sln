@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ENV", "ENV", "{D09D745F-FC0
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simplic.Change.Tracking.PlugIn", "Simplic.Change.Tracking.PlugIn\Simplic.Change.Tracking.PlugIn.csproj", "{90D8027E-D737-4DFB-9908-7E52FEA72639}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{0AD18F8C-DD13-41CB-8663-2DAF6AD86682}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AD18F8C-DD13-41CB-8663-2DAF6AD86682}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AD18F8C-DD13-41CB-8663-2DAF6AD86682}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90D8027E-D737-4DFB-9908-7E52FEA72639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90D8027E-D737-4DFB-9908-7E52FEA72639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90D8027E-D737-4DFB-9908-7E52FEA72639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90D8027E-D737-4DFB-9908-7E52FEA72639}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

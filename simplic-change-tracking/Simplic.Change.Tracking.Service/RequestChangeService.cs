@@ -86,8 +86,10 @@ namespace Simplic.Change.Tracking.Service
         /// <param name="crudType">Either insert/update or delete</param>
         /// <param name="tableName"></param>
         /// <param name="snapshot">a copy</param>
-        public void TrackChange<TModel>(object obj, CrudType crudType, string tableName, object snapshot)
+        public void TrackChange<TModel, TId>(object obj, CrudType crudType, string tableName, object snapshot, object primaryKey)
         {
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+
             RequestChange requestChange = new RequestChange
             {
 
@@ -97,26 +99,30 @@ namespace Simplic.Change.Tracking.Service
                 Type = crudType,
 
             };
-            requestChange = CheckForPrimaryKey<TModel>(requestChange, obj);
+            requestChange = SetPrimaryKey<TModel, TId>(requestChange, primaryKey);
 
-            if (obj is ITrackable trackable)
+            if (obj is ITrackable trackable && trackable.Snapshot != null)
             {
-                trackable.Snapshot = CreateDeepCopy<TModel>(obj);
                 requestChange.JsonObject = DetailedCompare<TModel>((TModel)trackable.Snapshot, (TModel)obj);
             }
             else
             {
                 snapshot = CreateDeepCopy<TModel>(snapshot);
-                //object Snapshot = Get(GetId((TModel)obj));
                 requestChange.JsonObject = DetailedCompare<TModel>((TModel)snapshot, (TModel)obj);
             }
             Save(requestChange);
         }
-
+        
+        /// <summary>
+        /// Creates a deep copy based on json serialize and deserialize 
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public TModel CreateDeepCopy<TModel>(object obj)
         {
-            var jsonString = JsonConvert.SerializeObject(obj);
-            TModel snapshot = (TModel)JsonConvert.DeserializeObject(jsonString);
+            var jsonString = JsonConvert.SerializeObject((TModel)obj);
+            TModel snapshot = JsonConvert.DeserializeObject<TModel>(jsonString);
             return snapshot;
         }
 
@@ -128,37 +134,22 @@ namespace Simplic.Change.Tracking.Service
         /// <param name="requestChange"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        private RequestChange CheckForPrimaryKey<TModel>(RequestChange requestChange, Object obj)
+        private RequestChange SetPrimaryKey<TModel, TId>(RequestChange requestChange, object primaryKey)
         {
-            string[] keys = { "Guid", "Id", "Ident", "Key" };
-            var info = (TModel)obj;
-            var infos = info.GetType().GetProperties();
-            foreach (var item in infos)
+
+            if (primaryKey is Guid guid)
             {
-                if (keys.Contains(item.Name))
-                {
-                    switch (item.Name)
-                    {
-                        case "Guid":
-                            requestChange.DataGuid = (Guid)item.GetValue(obj);
-                            break;
-                        case "Id":
-                        case "Ident":
-                            {
-                                requestChange.DataLong = (int)item.GetValue(obj);
-                                break;
-                            }
-                        case "Key":
-                            requestChange.DataString = (string)item.GetValue(obj);
-                            break;
-                        default:
-
-                            break;
-
-                    }
-                }
-
+                requestChange.DataGuid = guid;
             }
+            else if (primaryKey is int || primaryKey is long)
+            {
+                requestChange.DataLong = (long)primaryKey;
+            }
+            else
+            {
+                requestChange.DataString = primaryKey?.ToString() ?? "<unset>";
+            }
+
             return requestChange;
         }
 

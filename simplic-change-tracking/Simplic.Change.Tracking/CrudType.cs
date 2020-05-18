@@ -8,7 +8,8 @@ namespace Simplic.Change.Tracking
 {
     public enum CrudType
     {
-         InsertOrUpdate = 1,
-         Delete = 0
+         Insert = 0,
+         Update = 1,
+         Delete = 2
     }
 }
