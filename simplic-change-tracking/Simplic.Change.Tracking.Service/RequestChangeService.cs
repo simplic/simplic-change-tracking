@@ -170,5 +170,10 @@ namespace Simplic.Change.Tracking.Service
                 return false;
             }
         }
+
+        public IEnumerable<RequestChange> GetChanges(object primaryKey)
+        {
+            return requestChangeRepository.GetChanges(primaryKey);
+        }
     }
 }

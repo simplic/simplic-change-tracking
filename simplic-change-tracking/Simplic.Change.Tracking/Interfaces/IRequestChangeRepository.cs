@@ -11,6 +11,7 @@ namespace Simplic.Change.Tracking
     {
         bool Save(RequestChange obj);
         RequestChange Get(Int64 id);
-
+        IEnumerable<RequestChange> GetChanges(object primaryKey);
+        
     }
 }

@@ -1,15 +1,34 @@
-﻿<Window x:Class="Simplic.Change.Tracking.UI.RequestChangeWindow"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Simplic.Change.Tracking.UI"
-        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+﻿           
+<simplic:DefaultRibbonWindow
+    xmlns:simplic="http://schemas.simplic-systems.com/2016/xaml/presentation" x:Class="Simplic.Change.Tracking.UI.RequestChangeWindow"
+         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+          xmlns:local="clr-namespace:Simplic.Change.Tracking.UI"
+         xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+        mc:Ignorable="d"
+        Title="Änderungsverfolgung " Height="450" Width="800">
     <Grid>
-        <telerik:RadTreeListView>
-            
+        <telerik:RadTreeListView x:Name="RadTreeListView1"
+								 IsReadOnly="True"
+								 ItemsSource="{Binding Changes}"
+                                 IsExpandedBinding="{Binding IsExpanded, Mode=TwoWay}"
+								 AutoGenerateColumns="False"
+								 CanUserFreezeColumns="False"
+								 RowIndicatorVisibility="Collapsed"
+								 ColumnWidth="*">
+            <telerik:RadTreeListView.ChildTableDefinitions>
+                <telerik:TreeListViewTableDefinition ItemsSource="{Binding Props}" />
+            </telerik:RadTreeListView.ChildTableDefinitions>
+            <telerik:RadTreeListView.Columns>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding Change}" Header="Änderung"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding ChangedOn}" Header="Zeitstempel"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding UserName}" Header="Benutzer"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding PropertyName}" Header="Wertname"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding OldValue}" Header="Alter Wert"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding NewValue}" Header="Neuer Wert"/>
+            </telerik:RadTreeListView.Columns>
         </telerik:RadTreeListView>
     </Grid>
-</Window>
+</simplic:DefaultRibbonWindow>

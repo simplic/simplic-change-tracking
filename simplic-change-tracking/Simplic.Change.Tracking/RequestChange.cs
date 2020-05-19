@@ -55,5 +55,7 @@ namespace Simplic.Change.Tracking
         /// Gets or sets the data id as string
         /// </summary>
         public string DataString { get; set; }
+
+        public string UserName { get; set; }
     }
 }

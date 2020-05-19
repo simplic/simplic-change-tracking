@@ -19,18 +19,22 @@ namespace Simplic.Change.Tracking.UI
     /// <summary>
     /// Interaction logic for UserControl1.xaml
     /// </summary>
-    public partial class RequestChangeWindow : BaseRequestChangeWindow
+    public partial class RequestChangeWindow : DefaultRibbonWindow
     {
         public RequestChangeWindow()
         {
             InitializeComponent();
+            
+            
+            
         }
-    }
-    public abstract class BaseRequestChangeWindow : ApplicationWindow<int, RequestChange, RequestChangeViewModel, IRequestChangeService>, IRequestChangeWindow
-    {
-        public BaseRequestChangeWindow(IRequestChangeService service)
-            : base(service)
+        public override void OnOpenPage(WindowOpenPageEventArg e)
         {
+
+            base.OnOpenPage(e);
         }
+
+
     }
+ 
 }
