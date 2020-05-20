@@ -13,7 +13,7 @@ namespace Simplic.Change.Tracking.PlugIn
         public static void Initialize()
         {
             var container = CommonServiceLocator.ServiceLocator.Current.GetInstance<IUnityContainer>();
-            container.RegisterType<IRequestChangeService, RequestChangeService>();
+            container.RegisterType<IChangeTrackingService, ChangeTrackingService>();
         }
 
     }

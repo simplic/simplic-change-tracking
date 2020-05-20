@@ -47,10 +47,10 @@
   <ItemGroup>
     <Compile Include="ChangeTrackingKey.cs" />
     <Compile Include="ChildViewModel.cs" />
-    <Compile Include="IRequestChangeWindow.cs" />
+    <Compile Include="IChangeTrackingWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequestChangeApplicationHelper.cs" />
-    <Compile Include="RequestChangeViewModel.cs" />
+    <Compile Include="ChangeTrackingApplicationHelper.cs" />
+    <Compile Include="ChangeTrackingViewModel.cs" />
     <Compile Include="RequestChangeWindow.xaml.cs">
       <DependentUpon>RequestChangeWindow.xaml</DependentUpon>
     </Compile>

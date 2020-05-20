@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Simplic.Change.Tracking
 {
-    public interface IRequestChangeRepository 
+    public interface IChangeTrackingRepository 
     {
-        bool Save(RequestChange obj);
-        RequestChange Get(Int64 id);
-        IEnumerable<RequestChange> GetChanges(object primaryKey);
+        bool Save(ChangeTracking obj);
+        ChangeTracking Get(Int64 id);
+        IEnumerable<ChangeTracking> GetChanges(object primaryKey);
         
     }
 }

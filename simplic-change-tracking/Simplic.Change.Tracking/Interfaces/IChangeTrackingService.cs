@@ -2,7 +2,7 @@
 
 namespace Simplic.Change.Tracking
 {
-    public interface IRequestChangeService : IRequestChangeRepository
+    public interface IChangeTrackingService : IChangeTrackingRepository
     {
         string DetailedCompare<T>(T oldValue, T newValue);
         void TrackChange<TModel, TId>(object obj, CrudType crudType, string tableName, object snapshot, object primaryKey);

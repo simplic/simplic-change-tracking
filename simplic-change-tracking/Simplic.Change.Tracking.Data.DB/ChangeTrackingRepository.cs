@@ -7,10 +7,10 @@ using System.Collections.Generic;
 
 namespace Simplic.Change.Tracking.Data.DB
 {
-    public class RequestChangeRepository : IRequestChangeRepository
+    public class ChangeTrackingRepository : IChangeTrackingRepository
     {
         private ISqlService sqlService;
-        public RequestChangeRepository(ISqlService sqlService)
+        public ChangeTrackingRepository(ISqlService sqlService)
            
         {
             this.sqlService = sqlService;
@@ -21,26 +21,26 @@ namespace Simplic.Change.Tracking.Data.DB
 
 
 
-        public RequestChange Get(Int64 id)
+        public ChangeTracking Get(Int64 id)
         {
             return sqlService.OpenConnection((c) =>
             {
-                return c.QueryFirstOrDefault<RequestChange>($"Select * From {TableName} where Ident = :Ident",
+                return c.QueryFirstOrDefault<ChangeTracking>($"Select * From {TableName} where Ident = :Ident",
                     new { Ident = id });
             });
 
         }
 
-        public IEnumerable<RequestChange> GetChanges(object primaryKey)
+        public IEnumerable<ChangeTracking> GetChanges(object primaryKey)
         {
             return sqlService.OpenConnection((c) =>
             {
-                return c.Query<RequestChange>($"Select * From {TableName} where DataGuid = :primaryKey or  DataLong = :primaryKey or DataString = :primaryKey",
+                return c.Query<ChangeTracking>($"Select * From {TableName} where DataGuid = :primaryKey or  DataLong = :primaryKey or DataString = :primaryKey",
                     new {  primaryKey });
             });
         }
 
-        public bool Save(RequestChange obj)
+        public bool Save(ChangeTracking obj)
         {
             string sql = $"Insert into {TableName} ( JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName)" +
                     $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName) ";

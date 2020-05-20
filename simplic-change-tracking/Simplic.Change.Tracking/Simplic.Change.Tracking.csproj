@@ -42,10 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CrudType.cs" />
-    <Compile Include="Interfaces\IRequestChangeRepository.cs" />
-    <Compile Include="Interfaces\IRequestChangeService.cs" />
+    <Compile Include="Interfaces\IChangeTrackingRepository.cs" />
+    <Compile Include="Interfaces\IChangeTrackingService.cs" />
     <Compile Include="Interfaces\ITrackable.cs" />
-    <Compile Include="RequestChange.cs" />
+    <Compile Include="ChangeTracking.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Variance.cs" />
   </ItemGroup>

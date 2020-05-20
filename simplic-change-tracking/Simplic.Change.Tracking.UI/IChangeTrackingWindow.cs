@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Simplic.Change.Tracking.UI
 {
-    public interface IRequestChangeWindow
+    public interface IChangeTrackingWindow
     {
-
+        void Show();
+        void AddPagingObject(object pagingObject);
+        void ShowDialog();
     }
 }

@@ -13,7 +13,7 @@ namespace Simplic.Change.Tracking.UI
         private string change;
         private DateTime changedOn;
         private int userName;
-        RequestChange model;
+        ChangeTracking model;
         public ObservableCollection<ChildViewModel> props;
         private Variance variance;
 
@@ -21,7 +21,7 @@ namespace Simplic.Change.Tracking.UI
         /// Constructor to get the model - type request change
         /// </summary>
         /// <param name="model"></param>
-        public ChildViewModel(RequestChange model)
+        public ChildViewModel(ChangeTracking model)
         {
             props = new ObservableCollection<ChildViewModel>();
         }

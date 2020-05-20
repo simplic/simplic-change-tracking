@@ -19,22 +19,26 @@ namespace Simplic.Change.Tracking.UI
     /// <summary>
     /// Interaction logic for UserControl1.xaml
     /// </summary>
-    public partial class RequestChangeWindow : DefaultRibbonWindow
+    public partial class ChangeTrackingWindow : DefaultRibbonWindow, IChangeTrackingWindow
     {
-        public RequestChangeWindow()
+        public ChangeTrackingWindow()
         {
             InitializeComponent();
-            
-            
-            
         }
+
         public override void OnOpenPage(WindowOpenPageEventArg e)
         {
-
+            if (e.CurrentObject is ChangeTrackingKey model)
+            {
+                DataContext = new ChangeTrackingViewModel(model);
+            }
             base.OnOpenPage(e);
         }
 
-
+        void IChangeTrackingWindow.ShowDialog()
+        {
+            throw new NotImplementedException();
+        }
     }
- 
+
 }

@@ -1,6 +1,6 @@
 ﻿           
 <simplic:DefaultRibbonWindow
-    xmlns:simplic="http://schemas.simplic-systems.com/2016/xaml/presentation" x:Class="Simplic.Change.Tracking.UI.RequestChangeWindow"
+    xmlns:simplic="http://schemas.simplic-systems.com/2016/xaml/presentation" x:Class="Simplic.Change.Tracking.UI.ChangeTrackingWindow"
          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Simplic.Change.Tracking
 {
-    public class RequestChange
+    public class ChangeTracking
     {
         /// <summary>
         /// Ident serves as the unique identitifer 

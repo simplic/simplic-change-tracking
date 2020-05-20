@@ -3,24 +3,26 @@ using Simplic.Studio.UI;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using Telerik.Windows.Controls;
 
 namespace Simplic.Change.Tracking.UI
 {
-    public class RequestChangeViewModel : ExtendableViewModel
+    public class ChangeTrackingViewModel : ViewModelBase
     {
         private DateTime changedOn;
         private bool isExpanded;
-        private RequestChange model;
+        private ChangeTracking model;
         private string change;
         private ObservableCollection<ChildViewModel> changes;
-        private readonly IRequestChangeService requestChangeService;
+        private ChangeTrackingKey changeTrackingKey;
+        private readonly IChangeTrackingService requestChangeService;
 
 
         /// <summary>
         /// Constructor to get the model 
         /// </summary>
         /// <param name="model"></param>
-        public RequestChangeViewModel(RequestChange model)
+        public ChangeTrackingViewModel(ChangeTracking model)
         {
             this.model = model;
         }
@@ -28,9 +30,9 @@ namespace Simplic.Change.Tracking.UI
         /// <summary>
         /// Overloading constructor to initialize the model
         /// </summary>
-        public RequestChangeViewModel()
+        public ChangeTrackingViewModel(ChangeTrackingKey changeTrackingKey)
         {
-            model = new RequestChange();
+            this.changeTrackingKey = changeTrackingKey; 
         }
 
         /// <summary>
@@ -90,17 +92,37 @@ namespace Simplic.Change.Tracking.UI
                 return this.changes;
             }
         }
+        
 
+        [Display(AutoGenerateField = false)]
+        public bool IsExpanded
+        {
+            get
+            {
+                return this.isExpanded;
+            }
+            set
+            {
+                if (this.isExpanded != value)
+                {
+                    this.isExpanded = value;
 
+                    this.LoadChildren();
 
+                    OnPropertyChanged("IsExpanded");
+                }
+            }
+        }
 
+        public void LoadChildren()
+        {
+            if (this.changes == null)
+            {
 
-
-
-
-
-
-
+                this.changes = new ObservableCollection<ChildViewModel>();//Add IEnumerable inside brackets 
+                this.OnPropertyChanged("Items");
+            }
+        }
     }
-
 }
+

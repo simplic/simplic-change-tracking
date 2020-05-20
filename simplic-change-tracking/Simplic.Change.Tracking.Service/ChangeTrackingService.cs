@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace Simplic.Change.Tracking.Service
 {
-    public class RequestChangeService : IRequestChangeService
+    public class ChangeTrackingService : IChangeTrackingService
     {
-        IRequestChangeRepository requestChangeRepository;
+        IChangeTrackingRepository requestChangeRepository;
         ISessionService sessionService;
-        public RequestChangeService(IRequestChangeRepository requestChangeRepository, ISessionService sessionService)
+        public ChangeTrackingService(IChangeTrackingRepository requestChangeRepository, ISessionService sessionService)
         {
             this.requestChangeRepository = requestChangeRepository;
             this.sessionService = sessionService;
@@ -63,7 +63,7 @@ namespace Simplic.Change.Tracking.Service
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public RequestChange Get(Int64 id)
+        public ChangeTracking Get(Int64 id)
         {
             return requestChangeRepository.Get(id);
         }
@@ -73,7 +73,7 @@ namespace Simplic.Change.Tracking.Service
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public bool Save(RequestChange obj)
+        public bool Save(ChangeTracking obj)
         {
             return requestChangeRepository.Save(obj);
         }
@@ -90,7 +90,7 @@ namespace Simplic.Change.Tracking.Service
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
 
-            RequestChange requestChange = new RequestChange
+            ChangeTracking requestChange = new ChangeTracking
             {
 
                 UserId = sessionService.CurrentSession.UserId,
@@ -134,7 +134,7 @@ namespace Simplic.Change.Tracking.Service
         /// <param name="requestChange"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        private RequestChange SetPrimaryKey<TModel, TId>(RequestChange requestChange, object primaryKey)
+        private ChangeTracking SetPrimaryKey<TModel, TId>(ChangeTracking requestChange, object primaryKey)
         {
 
             if (primaryKey is Guid guid)
@@ -171,7 +171,7 @@ namespace Simplic.Change.Tracking.Service
             }
         }
 
-        public IEnumerable<RequestChange> GetChanges(object primaryKey)
+        public IEnumerable<ChangeTracking> GetChanges(object primaryKey)
         {
             return requestChangeRepository.GetChanges(primaryKey);
         }
