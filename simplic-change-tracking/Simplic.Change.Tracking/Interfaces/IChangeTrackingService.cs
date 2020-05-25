@@ -8,6 +8,7 @@ namespace Simplic.Change.Tracking
         void TrackChange<TModel, TId>(object obj, CrudType crudType, string tableName, object snapshot, object primaryKey);
         bool IsTrackable<TModel>(object obj);
         TModel CreateDeepCopy<TModel>(object obj);
+        string GetJson(long ident);
 
     }
 }

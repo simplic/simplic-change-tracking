@@ -22,9 +22,9 @@ namespace Simplic.Change.Tracking
 
 
         /// <summary>
-        /// Gets or sets the enum, either it is a insert or update that means 1 or it is 0 thats means deleted
+        /// Gets or sets the enum, either it is a insert = 0 or update = 1 or delete =2
         /// </summary>
-        public CrudType Type { get; set; }
+        public CrudType CrudType { get; set; }
 
         /// <summary>
         /// Gets or sets the table name of the object
@@ -56,6 +56,9 @@ namespace Simplic.Change.Tracking
         /// </summary>
         public string DataString { get; set; }
 
+        /// <summary>
+        /// Gets or set the user name as string 
+        /// </summary>
         public string UserName { get; set; }
     }
 }

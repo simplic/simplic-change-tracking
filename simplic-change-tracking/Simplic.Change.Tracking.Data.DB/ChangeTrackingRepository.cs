@@ -33,10 +33,27 @@ namespace Simplic.Change.Tracking.Data.DB
 
         public IEnumerable<ChangeTracking> GetChanges(object primaryKey)
         {
+            if(primaryKey is Guid guid)
+            {
+                return sqlService.OpenConnection((c) =>
+                {
+                    return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where DataGuid = :primaryKey",
+                        new { primaryKey = guid });
+                });
+            }
             return sqlService.OpenConnection((c) =>
             {
-                return c.Query<ChangeTracking>($"Select * From {TableName} where DataGuid = :primaryKey or  DataLong = :primaryKey or DataString = :primaryKey",
-                    new {  primaryKey });
+                return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where DataLong = :primaryKey or DataString = :primaryKey",
+                    new { primaryKey = primaryKey });
+            });
+        }
+
+        public byte[] GetJsonAsByteArray(long ident)
+        {
+            return sqlService.OpenConnection((c) =>
+            {
+                return c.QuerySingleOrDefault<byte[]>($"Select JsonObject From {TableName} where Ident = :primaryKey",
+                    new { primaryKey = ident });
             });
         }
 
@@ -48,7 +65,7 @@ namespace Simplic.Change.Tracking.Data.DB
             sqlService.OpenConnection((c) =>
             {
                 c.Execute(sql, new { JsonObject = obj.JsonObject, DataGuid = obj.DataGuid,
-                CrudType = obj.Type, TableName = obj.TableName, TimeStampChange = obj.TimeStampChange, UserId = obj.UserId, UserName = obj.UserName});
+                CrudType = obj.CrudType, TableName = obj.TableName, TimeStampChange = obj.TimeStampChange, UserId = obj.UserId, UserName = obj.UserName});
             });
             return true;
         }

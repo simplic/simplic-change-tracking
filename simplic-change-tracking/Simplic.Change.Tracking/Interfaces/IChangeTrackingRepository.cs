@@ -12,6 +12,8 @@ namespace Simplic.Change.Tracking
         bool Save(ChangeTracking obj);
         ChangeTracking Get(Int64 id);
         IEnumerable<ChangeTracking> GetChanges(object primaryKey);
+        byte[] GetJsonAsByteArray(long ident);
+
         
     }
 }

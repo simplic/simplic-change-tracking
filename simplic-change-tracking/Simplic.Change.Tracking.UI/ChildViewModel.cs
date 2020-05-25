@@ -5,10 +5,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Telerik.Windows.Controls;
 
 namespace Simplic.Change.Tracking.UI
 {
-    public class ChildViewModel
+    public class ChildViewModel : ViewModelBase
     {
         private string change;
         private DateTime changedOn;
@@ -16,6 +17,8 @@ namespace Simplic.Change.Tracking.UI
         ChangeTracking model;
         public ObservableCollection<ChildViewModel> props;
         private Variance variance;
+        private bool isExpanded;
+        private bool isExpandable;
 
         /// <summary>
         /// Constructor to get the model - type request change
@@ -23,7 +26,23 @@ namespace Simplic.Change.Tracking.UI
         /// <param name="model"></param>
         public ChildViewModel(ChangeTracking model)
         {
+            
+            this.model = model;
+            init();
+            
+        }
+        /// <summary>
+        /// Only to use it in this class 
+        /// </summary>
+        private ChildViewModel()
+        {
+            init();
+        }
+
+        private void init()
+        {
             props = new ObservableCollection<ChildViewModel>();
+            isExpandable = true;
         }
 
         /// <summary>
@@ -36,11 +55,11 @@ namespace Simplic.Change.Tracking.UI
         {
             get
             {
-                return model.Type;
+                return model.CrudType;
             }
             set
             {
-                model.Type = value;
+                model.CrudType = value;
             }
         }
 
@@ -137,6 +156,45 @@ namespace Simplic.Change.Tracking.UI
                 variance = value;
             }
 
+        }
+
+        public bool IsExpanded
+        {
+            get => this.isExpanded;
+            set
+            {
+                if (this.isExpanded != value)
+                {
+                    this.isExpanded = value;
+
+                    this.LoadChildren();
+
+                    OnPropertyChanged("IsExpanded");
+                }
+            }
+        }
+
+        private void LoadChildren()
+        {
+            if (this.props == null || this.props.Count() < 1)
+            {
+                this.props = new ObservableCollection<ChildViewModel>();
+                props.Add(new ChildViewModel
+                {
+                    Change = CrudType.Insert,
+                    isExpandable = false
+
+                });
+                this.OnPropertyChanged("Props");
+            }
+        }
+        public bool IsExpandable
+        {
+            get
+            {
+                return isExpandable;
+            }
+            set => isExpandable = value;
         }
         /// <summary>
         /// Gets or sets the child item for the tree view that contains the changes

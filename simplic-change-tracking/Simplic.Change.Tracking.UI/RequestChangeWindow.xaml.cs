@@ -24,6 +24,7 @@ namespace Simplic.Change.Tracking.UI
         public ChangeTrackingWindow()
         {
             InitializeComponent();
+            DataContext = new ChangeTrackingViewModel(new ChangeTracking());
         }
 
         public override void OnOpenPage(WindowOpenPageEventArg e)
@@ -32,6 +33,11 @@ namespace Simplic.Change.Tracking.UI
             {
                 DataContext = new ChangeTrackingViewModel(model);
             }
+            else
+            {
+                DataContext = new ChangeTrackingViewModel(new ChangeTracking());
+            }
+            
             base.OnOpenPage(e);
         }
 
@@ -39,6 +45,7 @@ namespace Simplic.Change.Tracking.UI
         {
             throw new NotImplementedException();
         }
+        
     }
 
 }

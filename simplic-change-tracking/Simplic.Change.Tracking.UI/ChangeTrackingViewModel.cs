@@ -1,9 +1,13 @@
 ﻿using Simplic.Framework.UI;
 using Simplic.Studio.UI;
 using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using Telerik.Windows.Controls;
+using System.Linq;
+using System.Collections.Generic;
+using System.Windows.Documents;
 
 namespace Simplic.Change.Tracking.UI
 {
@@ -13,9 +17,11 @@ namespace Simplic.Change.Tracking.UI
         private bool isExpanded;
         private ChangeTracking model;
         private string change;
-        private ObservableCollection<ChildViewModel> changes;
+        private ObservableCollection<ChildViewModel> changes = new ObservableCollection<ChildViewModel>();
         private ChangeTrackingKey changeTrackingKey;
-        private readonly IChangeTrackingService requestChangeService;
+        private IChangeTrackingService changeTrackingService;
+        private bool isEmpty;
+        private bool isExpandable;
 
 
         /// <summary>
@@ -25,6 +31,22 @@ namespace Simplic.Change.Tracking.UI
         public ChangeTrackingViewModel(ChangeTracking model)
         {
             this.model = model;
+            init();
+            changeTrackingService.GetChanges(Guid.Parse("DA9347AC-6C49-4E27-9DC7-60591E842AA4"));
+            
+            
+        }
+
+        private void init()
+        {
+            changeTrackingService = CommonServiceLocator.ServiceLocator.Current.GetInstance<IChangeTrackingService>();
+            var collection = changeTrackingService.GetChanges(Guid.Parse("DA9347AC-6C49-4E27-9DC7-60591E842AA4"));
+            foreach (var item in collection)
+            {
+                var model = new ChildViewModel(item);
+
+                changes.Add(model);
+            };
         }
 
         /// <summary>
@@ -32,7 +54,10 @@ namespace Simplic.Change.Tracking.UI
         /// </summary>
         public ChangeTrackingViewModel(ChangeTrackingKey changeTrackingKey)
         {
-            this.changeTrackingKey = changeTrackingKey; 
+            this.changeTrackingKey = changeTrackingKey;
+            init();
+            model = new ChangeTracking();
+            
         }
 
         /// <summary>
@@ -42,13 +67,13 @@ namespace Simplic.Change.Tracking.UI
         {
             get
             {
-                return model.Type;
+                return model.CrudType;
             }
             set
             {
-                 model.Type = value;
+                model.CrudType = value;
             }
-           
+
         }
 
         /// <summary>
@@ -79,7 +104,7 @@ namespace Simplic.Change.Tracking.UI
             {
                 model.UserName = value;
             }
-          
+
         }
 
         /// <summary>
@@ -91,15 +116,20 @@ namespace Simplic.Change.Tracking.UI
             {
                 return this.changes;
             }
+            set
+            {
+                this.changes = value;
+                OnPropertyChanged("Changes");
+            }
         }
-        
+
 
         [Display(AutoGenerateField = false)]
         public bool IsExpanded
         {
             get
             {
-                return this.isExpanded;
+                return false;
             }
             set
             {
@@ -107,22 +137,28 @@ namespace Simplic.Change.Tracking.UI
                 {
                     this.isExpanded = value;
 
-                    this.LoadChildren();
+                    
 
                     OnPropertyChanged("IsExpanded");
                 }
             }
         }
-
-        public void LoadChildren()
+        [Display(AutoGenerateField = false)]
+        public bool IsExpandable
         {
-            if (this.changes == null)
+            get
             {
-
-                this.changes = new ObservableCollection<ChildViewModel>();//Add IEnumerable inside brackets 
-                this.OnPropertyChanged("Items");
+                return this.isExpandable ;
             }
+            set
+            {
+                this.isExpandable = value;
+            }
+           
         }
+
+
+
     }
 }
 

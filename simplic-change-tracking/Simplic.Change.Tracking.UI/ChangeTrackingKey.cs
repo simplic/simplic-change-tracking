@@ -8,9 +8,15 @@ namespace Simplic.Change.Tracking.UI
 {
     public class ChangeTrackingKey 
     {
+        /// <summary>
+        /// Gets or sets the primary key based on the object
+        /// </summary>
         public object PrimaryKey { get; set; }
 
 
+        /// <summary>
+        /// Gets or sets the object type as string 
+        /// </summary>
         public string ObjectType { get; set; }
     }
 }

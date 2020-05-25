@@ -96,7 +96,7 @@ namespace Simplic.Change.Tracking.Service
                 UserId = sessionService.CurrentSession.UserId,
                 TableName = tableName,
                 TimeStampChange = DateTime.Now,
-                Type = crudType,
+                CrudType = crudType,
 
             };
             requestChange = SetPrimaryKey<TModel, TId>(requestChange, primaryKey);
@@ -174,6 +174,18 @@ namespace Simplic.Change.Tracking.Service
         public IEnumerable<ChangeTracking> GetChanges(object primaryKey)
         {
             return requestChangeRepository.GetChanges(primaryKey);
+        }
+
+        public byte[] GetJsonAsByteArray(long ident)
+        {
+            return requestChangeRepository.GetJsonAsByteArray(ident);
+        }
+
+        public string GetJson(long ident)
+        {
+            var arr = GetJsonAsByteArray(ident);
+            System.Text.UTF8Encoding enc = new System.Text.UTF8Encoding();
+            return enc.GetString(arr);
         }
     }
 }
