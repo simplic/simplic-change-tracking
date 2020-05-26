@@ -11,5 +11,7 @@ namespace Simplic.Change.Tracking.UI
         void Show();
         void AddPagingObject(object pagingObject);
         void ShowDialog();
+        void SetKey(ChangeTrackingKey key);
+        
     }
 }

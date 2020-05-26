@@ -13,7 +13,8 @@ namespace Simplic.Change.Tracking
         ChangeTracking Get(Int64 id);
         IEnumerable<ChangeTracking> GetChanges(object primaryKey);
         byte[] GetJsonAsByteArray(long ident);
+        IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "");
 
-        
+
     }
 }

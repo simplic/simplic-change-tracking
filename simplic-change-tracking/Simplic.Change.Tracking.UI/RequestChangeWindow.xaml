@@ -26,9 +26,9 @@
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding Change}"  Header="Änderung"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding ChangedOn}" Header="Zeitstempel"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding UserName}" Header="Benutzer"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding PropertyName}" IsEnabled="{Binding IsExpanded}" Header="Wertname"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding OldValue}" IsEnabled="{Binding IsExpanded}" Header="Alter Wert"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding NewValue}" IsEnabled="{Binding IsExpanded}" Header="Neuer Wert"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding PropertyName}"  Header="Wertname"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding OldValue}" Header="Alter Wert"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding NewValue}" Header="Neuer Wert"/>
             </telerik:RadTreeListView.Columns>
         </telerik:RadTreeListView>
     </Grid>

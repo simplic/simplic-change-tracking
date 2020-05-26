@@ -4,6 +4,7 @@ using Simplic.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Simplic.Change.Tracking.Service
 {
@@ -11,6 +12,12 @@ namespace Simplic.Change.Tracking.Service
     {
         IChangeTrackingRepository requestChangeRepository;
         ISessionService sessionService;
+
+        /// <summary>
+        /// Constructor for dependency injection
+        /// </summary>
+        /// <param name="requestChangeRepository"></param>
+        /// <param name="sessionService"></param>
         public ChangeTrackingService(IChangeTrackingRepository requestChangeRepository, ISessionService sessionService)
         {
             this.requestChangeRepository = requestChangeRepository;
@@ -171,21 +178,75 @@ namespace Simplic.Change.Tracking.Service
             }
         }
 
+        /// <summary>
+        /// Get all changes based on a primary key of object 
+        /// </summary>
+        /// <param name="primaryKey"></param>
+        /// <returns></returns>
         public IEnumerable<ChangeTracking> GetChanges(object primaryKey)
         {
             return requestChangeRepository.GetChanges(primaryKey);
         }
 
+
+        /// <summary>
+        /// Gets the json string as a byte array
+        /// </summary>
+        /// <param name="ident"></param>
+        /// <returns></returns>
         public byte[] GetJsonAsByteArray(long ident)
         {
             return requestChangeRepository.GetJsonAsByteArray(ident);
         }
 
+        /// <summary>
+        /// Gets a json string thats based shows the property, old value and new value of all changes based on a identifier
+        /// </summary>
+        /// <param name="ident"></param>
+        /// <returns></returns>
         public string GetJson(long ident)
         {
             var arr = GetJsonAsByteArray(ident);
-            System.Text.UTF8Encoding enc = new System.Text.UTF8Encoding();
-            return enc.GetString(arr);
+            return Encoding.UTF8.GetString(arr);
         }
+
+        /// <summary>
+        /// Gets a Ienumerable of type change tracking based on an object which contains a primary key
+        /// </summary>
+        /// <param name="primaryKey"></param>
+        /// <returns></returns>
+        public IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "")
+        {
+            var infos = poco.GetType().GetProperties();
+            ;
+            object value = null;
+            foreach (var info in infos)
+            {
+
+                switch (info.Name)
+                {
+                    case ("Guid"):
+                        value = info.GetValue(poco);
+                        dataColumn = "DataGuid";
+                        break;
+                    case ("Identifier"):
+                        value = info.GetValue(poco);
+                        dataColumn = "DataString";
+                        break;
+                    case ("Id"):
+                    case ("Ident"):
+                        value = info.GetValue(poco);
+                        dataColumn = "DataLong";
+                        break;
+
+                    default:
+                        break;
+                        
+                }
+
+            }
+            return requestChangeRepository.GetChangesWithObject(value, dataColumn);
+        }
+
     }
 }

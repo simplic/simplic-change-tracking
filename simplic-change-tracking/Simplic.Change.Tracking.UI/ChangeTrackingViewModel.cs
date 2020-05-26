@@ -32,20 +32,24 @@ namespace Simplic.Change.Tracking.UI
         {
             this.model = model;
             init();
-            changeTrackingService.GetChanges(Guid.Parse("DA9347AC-6C49-4E27-9DC7-60591E842AA4"));
+            changeTrackingService.GetChanges(Guid.Parse("037AD2BD-E6C9-4247-B5AF-CE31509379DD"));
             
             
         }
 
+        /// <summary>
+        /// Init methode to encapsule same methods
+        /// </summary>
         private void init()
         {
             changeTrackingService = CommonServiceLocator.ServiceLocator.Current.GetInstance<IChangeTrackingService>();
-            var collection = changeTrackingService.GetChanges(Guid.Parse("DA9347AC-6C49-4E27-9DC7-60591E842AA4"));
+            var collection = changeTrackingService.GetChangesWithObject(changeTrackingKey.PrimaryKey);
+            
             foreach (var item in collection)
             {
                 var model = new ChildViewModel(item);
-
-                changes.Add(model);
+                model.ChangedOn = DateTime.Now;
+                Changes.Add(model);
             };
         }
 
@@ -56,6 +60,7 @@ namespace Simplic.Change.Tracking.UI
         {
             this.changeTrackingKey = changeTrackingKey;
             init();
+            
             model = new ChangeTracking();
             
         }
@@ -123,13 +128,15 @@ namespace Simplic.Change.Tracking.UI
             }
         }
 
-
+        /// <summary>
+        /// Gets or sets if the rows are expanded 
+        /// </summary>
         [Display(AutoGenerateField = false)]
         public bool IsExpanded
         {
             get
             {
-                return false;
+                return this.isExpanded;
             }
             set
             {
@@ -143,6 +150,10 @@ namespace Simplic.Change.Tracking.UI
                 }
             }
         }
+
+        /// <summary>
+        /// Gets or sets if the rows are expandable 
+        /// </summary>
         [Display(AutoGenerateField = false)]
         public bool IsExpandable
         {

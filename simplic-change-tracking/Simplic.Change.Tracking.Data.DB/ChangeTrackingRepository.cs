@@ -70,5 +70,15 @@ namespace Simplic.Change.Tracking.Data.DB
             return true;
         }
 
+        public IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "")
+        {
+            return sqlService.OpenConnection((c) =>
+            {
+                return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where {dataColumn} = :primaryKey ",
+                    new { primaryKey = poco });
+            });
+
+        }
+
     }
 }

@@ -15,10 +15,15 @@ namespace Simplic.Change.Tracking.UI
         private DateTime changedOn;
         private int userName;
         ChangeTracking model;
+        private IChangeTrackingService changeTrackingService;
         public ObservableCollection<ChildViewModel> props;
         private Variance variance;
+        private IList<Variance> variances;
         private bool isExpanded;
         private bool isExpandable;
+        private object oldValue;
+        private string propertyName;
+        private object newValue;
 
         /// <summary>
         /// Constructor to get the model - type request change
@@ -36,13 +41,16 @@ namespace Simplic.Change.Tracking.UI
         /// </summary>
         private ChildViewModel()
         {
+            model = new ChangeTracking();
             init();
         }
 
         private void init()
         {
+            changeTrackingService = CommonServiceLocator.ServiceLocator.Current.GetInstance<IChangeTrackingService>();
             props = new ObservableCollection<ChildViewModel>();
-            isExpandable = true;
+            variances = new List<Variance>();
+            this.isExpandable = true;
         }
 
         /// <summary>
@@ -100,41 +108,41 @@ namespace Simplic.Change.Tracking.UI
         {
             get
             {
-               return Difference.Property;
+               return this.propertyName;
             }
             set
             {
-                variance.Property = value;
+                this.propertyName = value;
             }
         }
 
         /// <summary>
         /// Gets and sets the old value as a string
         /// </summary>
-        public string OldValue
+        public object OldValue
         {
             get 
             {
-                return Difference.OldValue.ToString();
+                return oldValue;
             }
             set
             {
-                variance.OldValue = value;
+                this.oldValue = value;
             }
         }
 
         /// <summary>
         /// Gets or sets the new value as a string
         /// </summary>
-        public string NewValue
+        public object NewValue
         {
             get
             {
-                return Difference.NewValue.ToString();
+                return this.newValue;
             }
             set
             {
-                variance.NewValue = value;
+                this.newValue = value;
             }
         }
 
@@ -179,12 +187,25 @@ namespace Simplic.Change.Tracking.UI
             if (this.props == null || this.props.Count() < 1)
             {
                 this.props = new ObservableCollection<ChildViewModel>();
-                props.Add(new ChildViewModel
+                string json = changeTrackingService.GetJson(model.Ident);
+                variances = JsonConvert.DeserializeObject<List<Variance>>(json);
+                foreach (var item in variances)
                 {
-                    Change = CrudType.Insert,
-                    isExpandable = false
+                    props.Add(new ChildViewModel
+                    {
+                        Change = model.CrudType,
+                        PropertyName = item.Property,
+                        NewValue = item.NewValue,
+                        OldValue = item.OldValue,
+                        UserName = model.UserName,
+                        ChangedOn = model.TimeStampChange,
+                        isExpandable = false
 
-                });
+                    }) ;
+                }
+
+
+                
                 this.OnPropertyChanged("Props");
             }
         }
@@ -203,6 +224,11 @@ namespace Simplic.Change.Tracking.UI
         {
             get => props;
             set => props = value;
+        }
+        public IList<Variance> Variances
+        {
+            get => this.variances;
+            set => this.variances = value;
         }
     }
 }

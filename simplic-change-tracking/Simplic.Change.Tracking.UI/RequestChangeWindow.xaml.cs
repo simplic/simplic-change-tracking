@@ -21,10 +21,15 @@ namespace Simplic.Change.Tracking.UI
     /// </summary>
     public partial class ChangeTrackingWindow : DefaultRibbonWindow, IChangeTrackingWindow
     {
+        private ChangeTrackingKey key;
         public ChangeTrackingWindow()
         {
             InitializeComponent();
-            DataContext = new ChangeTrackingViewModel(new ChangeTracking());
+            if (key != null)
+            {
+                DataContext = new ChangeTrackingViewModel(key);
+            }
+            
         }
 
         public override void OnOpenPage(WindowOpenPageEventArg e)
@@ -44,6 +49,11 @@ namespace Simplic.Change.Tracking.UI
         void IChangeTrackingWindow.ShowDialog()
         {
             throw new NotImplementedException();
+        }
+        public void SetKey(ChangeTrackingKey key)
+        {
+            this.key = key;
+            DataContext = new ChangeTrackingViewModel(key);
         }
         
     }
