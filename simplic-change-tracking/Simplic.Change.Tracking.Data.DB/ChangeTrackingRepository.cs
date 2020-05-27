@@ -72,6 +72,11 @@ namespace Simplic.Change.Tracking.Data.DB
 
         public IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "")
         {
+            //PlaceHolder if the datacolumn is numm
+            if (dataColumn.Equals(""))
+            {
+                dataColumn = "DataGuid";
+            }
             return sqlService.OpenConnection((c) =>
             {
                 return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where {dataColumn} = :primaryKey ",

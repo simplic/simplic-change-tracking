@@ -237,7 +237,15 @@ namespace Simplic.Change.Tracking.Service
                     case ("Id"):
                     case ("Ident"):
                         value = info.GetValue(poco);
-                        dataColumn = "DataLong";
+                        if (value is Guid guid)
+                        {
+                            dataColumn = "DataGuid";
+                        }
+                        else
+                        {
+                            dataColumn = "DataLong";
+                        }
+                        
                         break;
 
                     default:
