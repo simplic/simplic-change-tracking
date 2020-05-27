@@ -40,7 +40,8 @@ namespace Simplic.Change.Tracking.Service
             ComparisonConfig comparisonConfig = new ComparisonConfig
             {
                 MaxDifferences = 999,
-                CaseSensitive = true
+                CaseSensitive = true,
+                
 
             };
             CompareLogic compareLogic = new CompareLogic(comparisonConfig);
@@ -86,7 +87,7 @@ namespace Simplic.Change.Tracking.Service
         }
 
         /// <summary>
-        /// Tracks the changes and saves the 
+        /// Tracks the changes and saves them 
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="obj"></param>

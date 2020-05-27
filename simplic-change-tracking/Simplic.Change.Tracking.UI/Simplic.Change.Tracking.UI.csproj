@@ -83,6 +83,9 @@
     <PackageReference Include="Telerik.Windows.Controls.GridView.for.Wpf.Xaml">
       <Version>2020.1.218</Version>
     </PackageReference>
+    <PackageReference Include="Telerik.Windows.Controls.RibbonView.for.Wpf.Xaml">
+      <Version>2020.1.218</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Simplic.Change.Tracking\Simplic.Change.Tracking.csproj">

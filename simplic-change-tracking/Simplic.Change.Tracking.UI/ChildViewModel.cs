@@ -11,9 +11,7 @@ namespace Simplic.Change.Tracking.UI
 {
     public class ChildViewModel : ViewModelBase
     {
-        private string change;
-        private DateTime changedOn;
-        private int userName;
+  
         ChangeTracking model;
         private IChangeTrackingService changeTrackingService;
         public ObservableCollection<ChildViewModel> props;
@@ -31,10 +29,10 @@ namespace Simplic.Change.Tracking.UI
         /// <param name="model"></param>
         public ChildViewModel(ChangeTracking model)
         {
-            
+
             this.model = model;
             init();
-            
+
         }
         /// <summary>
         /// Only to use it in this class 
@@ -108,7 +106,7 @@ namespace Simplic.Change.Tracking.UI
         {
             get
             {
-               return this.propertyName;
+                return this.propertyName;
             }
             set
             {
@@ -121,7 +119,7 @@ namespace Simplic.Change.Tracking.UI
         /// </summary>
         public object OldValue
         {
-            get 
+            get
             {
                 return oldValue;
             }
@@ -175,38 +173,48 @@ namespace Simplic.Change.Tracking.UI
                 {
                     this.isExpanded = value;
 
-                    this.LoadChildren();
+                    _ = this.LoadChildren();
 
                     OnPropertyChanged("IsExpanded");
                 }
             }
         }
 
-        private void LoadChildren()
+        private async Task LoadChildren()
         {
             if (this.props == null || this.props.Count() < 1)
             {
                 this.props = new ObservableCollection<ChildViewModel>();
-                string json = changeTrackingService.GetJson(model.Ident);
+                string json = await Task.Run(() => changeTrackingService.GetJson(model.Ident));
+
                 variances = JsonConvert.DeserializeObject<List<Variance>>(json);
                 foreach (var item in variances)
                 {
-                    props.Add(new ChildViewModel
+                    if (!(item.Property.Equals("Snapshot")))
                     {
-                        Change = model.CrudType,
-                        PropertyName = item.Property,
-                        NewValue = item.NewValue,
-                        OldValue = item.OldValue,
-                        UserName = model.UserName,
-                        ChangedOn = model.TimeStampChange,
-                        isExpandable = false
 
-                    }) ;
+
+                        var child = new ChildViewModel
+                        {
+                            Change = model.CrudType,
+                            PropertyName = item.Property,
+                            NewValue = item.NewValue,
+                            OldValue = item.OldValue,
+                            UserName = model.UserName,
+                            ChangedOn = model.TimeStampChange,
+                            isExpandable = false
+
+                        };
+                       
+                        props.Add(child);
+                    }
+
                 }
 
 
-                
+
                 this.OnPropertyChanged("Props");
+                return;
             }
         }
         public bool IsExpandable

@@ -25,6 +25,7 @@ namespace Simplic.Change.Tracking.UI
         public ChangeTrackingWindow()
         {
             InitializeComponent();
+            RadRibbonDataGroup.Visibility = Visibility.Collapsed;
             if (key != null)
             {
                 DataContext = new ChangeTrackingViewModel(key);
