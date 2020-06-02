@@ -31,7 +31,7 @@ namespace Simplic.Change.Tracking.UI
         public ChangeTrackingViewModel(ChangeTracking model)
         {
             this.model = model;
-            init();
+            Initialize();
             changeTrackingService.GetChanges(Guid.Parse("037AD2BD-E6C9-4247-B5AF-CE31509379DD"));
             
             
@@ -40,7 +40,7 @@ namespace Simplic.Change.Tracking.UI
         /// <summary>
         /// Init methode to encapsule same methods
         /// </summary>
-        private void init()
+        private void Initialize()
         {
             changeTrackingService = CommonServiceLocator.ServiceLocator.Current.GetInstance<IChangeTrackingService>();
             var collection = changeTrackingService.GetChangesWithObject(changeTrackingKey.PrimaryKey);
@@ -59,7 +59,7 @@ namespace Simplic.Change.Tracking.UI
         public ChangeTrackingViewModel(ChangeTrackingKey changeTrackingKey)
         {
             this.changeTrackingKey = changeTrackingKey;
-            init();
+            Initialize();
             
             model = new ChangeTracking();
             

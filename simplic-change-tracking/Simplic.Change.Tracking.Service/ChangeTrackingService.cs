@@ -257,5 +257,9 @@ namespace Simplic.Change.Tracking.Service
             return requestChangeRepository.GetChangesWithObject(value, dataColumn);
         }
 
+        public IEnumerable<ChangeTracking> GetAllDeleted(string tableName)
+        {
+            return requestChangeRepository.GetAllDeleted(tableName);
+        }
     }
 }

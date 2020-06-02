@@ -14,7 +14,7 @@ namespace Simplic.Change.Tracking
         IEnumerable<ChangeTracking> GetChanges(object primaryKey);
         byte[] GetJsonAsByteArray(long ident);
         IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "");
-
+        IEnumerable<ChangeTracking> GetAllDeleted(string tableName);
 
     }
 }

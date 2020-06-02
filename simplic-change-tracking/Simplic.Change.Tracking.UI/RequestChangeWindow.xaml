@@ -20,7 +20,7 @@
 								 RowIndicatorVisibility="Collapsed"
 								 ColumnWidth="*">
             <telerik:RadTreeListView.ChildTableDefinitions>
-                <telerik:TreeListViewTableDefinition ItemsSource="{Binding Props}" />
+                <telerik:TreeListViewTableDefinition ItemsSource="{Binding Properties}" />
             </telerik:RadTreeListView.ChildTableDefinitions>
             <telerik:RadTreeListView.Columns>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding Change}"  Header="Änderung"/>

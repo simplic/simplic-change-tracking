@@ -72,7 +72,7 @@ namespace Simplic.Change.Tracking.Data.DB
 
         public IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "")
         {
-            //PlaceHolder if the datacolumn is numm
+            //PlaceHolder if the datacolumn is null
             if (dataColumn.Equals(""))
             {
                 dataColumn = "DataGuid";
@@ -85,5 +85,13 @@ namespace Simplic.Change.Tracking.Data.DB
 
         }
 
+        public IEnumerable<ChangeTracking> GetAllDeleted(string tableName)
+        {
+            return sqlService.OpenConnection((c) =>
+            {
+                return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where tableName = :tableName ",
+                    new { tableName = tableName });
+            });
+        }
     }
 }

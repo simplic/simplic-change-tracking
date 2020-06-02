@@ -213,7 +213,7 @@ namespace Simplic.Change.Tracking.UI
 
 
 
-                this.OnPropertyChanged("Props");
+                this.OnPropertyChanged(nameof(Properties));
                 return;
             }
         }
@@ -228,7 +228,7 @@ namespace Simplic.Change.Tracking.UI
         /// <summary>
         /// Gets or sets the child item for the tree view that contains the changes
         /// </summary>
-        public ObservableCollection<ChildViewModel> Props
+        public ObservableCollection<ChildViewModel> Properties
         {
             get => props;
             set => props = value;
