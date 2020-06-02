@@ -190,25 +190,31 @@ namespace Simplic.Change.Tracking.UI
                 variances = JsonConvert.DeserializeObject<List<Variance>>(json);
                 foreach (var item in variances)
                 {
-                    if (!(item.Property.Equals("Snapshot")))
+
+                    var child = new ChildViewModel
                     {
+                        Change = model.CrudType,
+                        PropertyName = item.Property,
+                        NewValue = item.NewValue,
+                        OldValue = item.OldValue,
+                        UserName = model.UserName,
+                        ChangedOn = model.TimeStampChange,
+                        isExpandable = false
 
-
-                        var child = new ChildViewModel
+                    };
+                    if ((item.Property.Equals("SnapshotSeperator")))
+                    {
+                        child.isExpandable = true;
+                        child.Snapshot = new ChildViewModel();
+                        child.Snapshot.props.Add(new ChildViewModel
                         {
-                            Change = model.CrudType,
-                            PropertyName = item.Property,
-                            NewValue = item.NewValue,
-                            OldValue = item.OldValue,
-                            UserName = model.UserName,
-                            ChangedOn = model.TimeStampChange,
-                            isExpandable = false
-
-                        };
-                       
-                        props.Add(child);
+                            OldValue =""
+                        }
+                            );
+                        
                     }
-
+                        
+                    props.Add(child);
                 }
 
 
@@ -238,5 +244,6 @@ namespace Simplic.Change.Tracking.UI
             get => this.variances;
             set => this.variances = value;
         }
+        public ChildViewModel Snapshot { get; set; }
     }
 }

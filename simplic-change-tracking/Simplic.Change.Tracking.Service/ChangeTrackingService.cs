@@ -41,7 +41,8 @@ namespace Simplic.Change.Tracking.Service
             {
                 MaxDifferences = 999,
                 CaseSensitive = true,
-                
+                MaxStructDepth = 4,
+
 
             };
             CompareLogic compareLogic = new CompareLogic(comparisonConfig);
@@ -62,6 +63,50 @@ namespace Simplic.Change.Tracking.Service
                 }
 
             }
+
+
+            var seperator = new Variance
+            {
+                Property = "SnapshotSeperator",
+
+            };
+            variances.Add(seperator);
+            var oldList = new List<T>();
+            var newList = new List<T>();
+            newList.Add(default(T));
+            oldList.Add(oldValue);
+            ComparisonResult resultSnapshot = compareLogic.Compare(oldList, newList);
+
+            if (!resultSnapshot.AreEqual)
+            {
+                foreach (var difference in resultSnapshot.Differences)
+                {
+                    Variance variance = new Variance
+                    {
+                        Property = difference.PropertyName,
+                        OldValue = difference.Object1Value,
+                        NewValue = difference.Object2Value
+                    };
+
+                    variances.Add(variance);
+                }
+
+            }
+
+            //var differences = oldValue.GetType().GetProperties();
+            //foreach (var difference in differences)
+            //{
+            //    Variance variance = new Variance
+            //    {
+            //        Property = difference.Name,
+            //        OldValue = null,
+            //        NewValue = difference.GetValue(oldValue)
+            //    };
+            //
+            //    variances.Add(variance);
+            //}
+
+
             var json = JsonConvert.SerializeObject(variances);
             return json;
         }
@@ -106,6 +151,7 @@ namespace Simplic.Change.Tracking.Service
                 TimeStampChange = DateTime.Now,
                 CrudType = crudType,
 
+
             };
             requestChange = SetPrimaryKey<TModel, TId>(requestChange, primaryKey);
 
@@ -117,10 +163,12 @@ namespace Simplic.Change.Tracking.Service
             {
                 snapshot = CreateDeepCopy<TModel>(snapshot);
                 requestChange.JsonObject = DetailedCompare<TModel>((TModel)snapshot, (TModel)obj);
+
             }
+            requestChange.DataType = obj.ToString();
             Save(requestChange);
         }
-        
+
         /// <summary>
         /// Creates a deep copy based on json serialize and deserialize 
         /// </summary>
@@ -216,45 +264,12 @@ namespace Simplic.Change.Tracking.Service
         /// </summary>
         /// <param name="primaryKey"></param>
         /// <returns></returns>
-        public IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "")
+        public IEnumerable<ChangeTracking> GetChangesWithObject(ChangeTrackingKey poco, string dataColumn = "")
         {
-            var infos = poco.GetType().GetProperties();
-            ;
-            object value = null;
-            foreach (var info in infos)
-            {
 
-                switch (info.Name)
-                {
-                    case ("Guid"):
-                        value = info.GetValue(poco);
-                        dataColumn = "DataGuid";
-                        break;
-                    case ("Identifier"):
-                        value = info.GetValue(poco);
-                        dataColumn = "DataString";
-                        break;
-                    case ("Id"):
-                    case ("Ident"):
-                        value = info.GetValue(poco);
-                        if (value is Guid guid)
-                        {
-                            dataColumn = "DataGuid";
-                        }
-                        else
-                        {
-                            dataColumn = "DataLong";
-                        }
-                        
-                        break;
 
-                    default:
-                        break;
-                        
-                }
 
-            }
-            return requestChangeRepository.GetChangesWithObject(value, dataColumn);
+            return requestChangeRepository.GetChangesWithObject(poco, dataColumn);
         }
 
         public IEnumerable<ChangeTracking> GetAllDeleted(string tableName)

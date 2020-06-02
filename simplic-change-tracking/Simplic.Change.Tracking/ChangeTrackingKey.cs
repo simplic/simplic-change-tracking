@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Simplic.Change.Tracking.UI
+namespace Simplic.Change.Tracking
 {
     public class ChangeTrackingKey 
     {

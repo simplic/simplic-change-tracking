@@ -59,28 +59,66 @@ namespace Simplic.Change.Tracking.Data.DB
 
         public bool Save(ChangeTracking obj)
         {
-            string sql = $"Insert into {TableName} ( JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName)" +
-                    $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName) ";
+            string sql = $"Insert into {TableName} ( JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName, DataType)" +
+                    $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName, :DataType) ";
 
             sqlService.OpenConnection((c) =>
             {
                 c.Execute(sql, new { JsonObject = obj.JsonObject, DataGuid = obj.DataGuid,
-                CrudType = obj.CrudType, TableName = obj.TableName, TimeStampChange = obj.TimeStampChange, UserId = obj.UserId, UserName = obj.UserName});
+                CrudType = obj.CrudType, TableName = obj.TableName, TimeStampChange = obj.TimeStampChange, UserId = obj.UserId, UserName = obj.UserName,
+                    DataType = obj.DataType
+                });
             });
             return true;
         }
 
-        public IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "")
+        public IEnumerable<ChangeTracking> GetChangesWithObject(ChangeTrackingKey poco, string dataColumn = "")
         {
-            //PlaceHolder if the datacolumn is null
-            if (dataColumn.Equals(""))
+            var infos = poco.PrimaryKey.GetType().GetProperties();
+            ;
+            object value = null;
+            foreach (var info in infos)
+            {
+
+                switch (info.Name)
+                {
+                    case ("Guid"):
+                        value = info.GetValue(poco.PrimaryKey);
+                        dataColumn = "DataGuid";
+                        break;
+                    case ("Identifier"):
+                        value = info.GetValue(poco.PrimaryKey);
+                        dataColumn = "DataString";
+                        break;
+                    case ("Id"):
+                    case ("Ident"):
+                        value = info.GetValue(poco.PrimaryKey);
+                        if (value is Guid guid)
+                        {
+                            dataColumn = "DataGuid";
+                        }
+                        else
+                        {
+                            dataColumn = "DataLong";
+                        }
+
+                        break;
+
+                    default:
+                        break;
+
+                }
+            }
+
+                //PlaceHolder if the datacolumn is null
+                if (dataColumn.Equals(""))
             {
                 dataColumn = "DataGuid";
             }
             return sqlService.OpenConnection((c) =>
             {
-                return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where {dataColumn} = :primaryKey ",
-                    new { primaryKey = poco });
+                return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where {dataColumn} = :primaryKey and DataType = :DataType",
+                    new { primaryKey = value, DataType = poco.ObjectType }) ;
             });
 
         }

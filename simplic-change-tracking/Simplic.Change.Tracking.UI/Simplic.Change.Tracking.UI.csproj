@@ -45,7 +45,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChangeTrackingKey.cs" />
     <Compile Include="ChildViewModel.cs" />
     <Compile Include="IChangeTrackingWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

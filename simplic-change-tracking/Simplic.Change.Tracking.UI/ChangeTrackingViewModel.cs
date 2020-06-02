@@ -43,12 +43,12 @@ namespace Simplic.Change.Tracking.UI
         private void Initialize()
         {
             changeTrackingService = CommonServiceLocator.ServiceLocator.Current.GetInstance<IChangeTrackingService>();
-            var collection = changeTrackingService.GetChangesWithObject(changeTrackingKey.PrimaryKey);
+            var collection = changeTrackingService.GetChangesWithObject(changeTrackingKey);
             
             foreach (var item in collection)
             {
                 var model = new ChildViewModel(item);
-                model.ChangedOn = DateTime.Now;
+                
                 Changes.Add(model);
             };
         }

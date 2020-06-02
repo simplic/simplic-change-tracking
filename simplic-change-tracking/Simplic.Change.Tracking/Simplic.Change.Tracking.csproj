@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeTrackingKey.cs" />
     <Compile Include="CrudType.cs" />
     <Compile Include="Interfaces\IChangeTrackingRepository.cs" />
     <Compile Include="Interfaces\IChangeTrackingService.cs" />
