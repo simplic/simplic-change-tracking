@@ -35,13 +35,17 @@ namespace Simplic.Change.Tracking.Service
         public string DetailedCompare<T>(T oldValue, T newValue)
         {
             IList<Variance> variances = new List<Variance>();
+            List<Type> AttributesToIgnoreList = new List<Type>();
 
+            AttributesToIgnoreList.Add(typeof(IgnoreChangeTracking));
 
             ComparisonConfig comparisonConfig = new ComparisonConfig
             {
                 MaxDifferences = 999,
                 CaseSensitive = true,
                 MaxStructDepth = 4,
+
+                AttributesToIgnore = AttributesToIgnoreList
 
 
             };
@@ -54,57 +58,25 @@ namespace Simplic.Change.Tracking.Service
                 {
                     Variance variance = new Variance
                     {
+
                         Property = difference.PropertyName,
                         OldValue = difference.Object1Value,
                         NewValue = difference.Object2Value
                     };
-
-                    variances.Add(variance);
-                }
-
-            }
-
-
-            var seperator = new Variance
-            {
-                Property = "SnapshotSeperator",
-
-            };
-            variances.Add(seperator);
-            var oldList = new List<T>();
-            var newList = new List<T>();
-            newList.Add(default(T));
-            oldList.Add(oldValue);
-            ComparisonResult resultSnapshot = compareLogic.Compare(oldList, newList);
-
-            if (!resultSnapshot.AreEqual)
-            {
-                foreach (var difference in resultSnapshot.Differences)
-                {
-                    Variance variance = new Variance
+                    
+                    var t = typeof(T);
+                    var pi = t.GetProperty(difference.PropertyName);
+                    if (Attribute.IsDefined(pi, typeof(ChangeTrackingDisplayName)))
                     {
-                        Property = difference.PropertyName,
-                        OldValue = difference.Object1Value,
-                        NewValue = difference.Object2Value
-                    };
-
+                        variance.Property = "Hund";
+                        variance.OldValue = difference.Object1.GetType().GetProperty(difference.PropertyName).Attributes.ToString();
+                    }
                     variances.Add(variance);
                 }
 
             }
 
-            //var differences = oldValue.GetType().GetProperties();
-            //foreach (var difference in differences)
-            //{
-            //    Variance variance = new Variance
-            //    {
-            //        Property = difference.Name,
-            //        OldValue = null,
-            //        NewValue = difference.GetValue(oldValue)
-            //    };
-            //
-            //    variances.Add(variance);
-            //}
+
 
 
             var json = JsonConvert.SerializeObject(variances);

@@ -9,6 +9,9 @@
          xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
         mc:Ignorable="d"
         Title="Änderungsverfolgung " Height="450" Width="800">
+    <Window.Resources>
+        <local:UniversallyConverter x:Key="UniversallyConverter" />
+    </Window.Resources>
     <Grid>
         <telerik:RadTreeListView x:Name="RadTreeListView1"
 								 IsReadOnly="True"
@@ -23,12 +26,12 @@
                 <telerik:TreeListViewTableDefinition ItemsSource="{Binding Properties}" />
             </telerik:RadTreeListView.ChildTableDefinitions>
             <telerik:RadTreeListView.Columns>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding Change}"  Header="Änderung"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding Change, Converter={StaticResource UniversallyConverter}}"  Header="Änderung"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding ChangedOn}" Header="Zeitstempel"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding UserName}" Header="Benutzer"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding PropertyName}"  Header="Wertname"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding OldValue}" Header="Alter Wert"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding NewValue}" Header="Neuer Wert"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding PropertyName, Converter={StaticResource UniversallyConverter}}"  Header="Wertname"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding OldValue, Converter={StaticResource UniversallyConverter}}" Header="Alter Wert"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding NewValue, Converter={StaticResource UniversallyConverter}}" Header="Neuer Wert"/>
             </telerik:RadTreeListView.Columns>
         </telerik:RadTreeListView>
     </Grid>

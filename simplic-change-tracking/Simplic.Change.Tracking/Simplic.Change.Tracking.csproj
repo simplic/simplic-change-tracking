@@ -41,8 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChangeTrackingDisplayName.cs" />
     <Compile Include="ChangeTrackingKey.cs" />
     <Compile Include="CrudType.cs" />
+    <Compile Include="IgnoreChangeTracking.cs" />
     <Compile Include="Interfaces\IChangeTrackingRepository.cs" />
     <Compile Include="Interfaces\IChangeTrackingService.cs" />
     <Compile Include="Interfaces\ITrackable.cs" />
