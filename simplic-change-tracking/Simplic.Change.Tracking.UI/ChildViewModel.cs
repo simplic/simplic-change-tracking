@@ -244,11 +244,15 @@ namespace Simplic.Change.Tracking.UI
             get => props;
             set => props = value;
         }
+
+        /// <summary>
+        /// Gets or sets the list of variance 
+        /// </summary>
         public IList<Variance> Variances
         {
             get => this.variances;
             set => this.variances = value;
         }
-        public ChildViewModel Snapshot { get; set; }
+        
     }
 }

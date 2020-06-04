@@ -3,8 +3,6 @@ using Newtonsoft.Json;
 using Simplic.Session;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace Simplic.Change.Tracking.Service
@@ -245,9 +243,6 @@ namespace Simplic.Change.Tracking.Service
         /// <returns></returns>
         public IEnumerable<ChangeTracking> GetChangesWithObject(ChangeTrackingKey poco, string dataColumn = "")
         {
-
-
-
             return requestChangeRepository.GetChangesWithObject(poco, dataColumn);
         }
 
