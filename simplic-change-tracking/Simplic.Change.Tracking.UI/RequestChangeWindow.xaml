@@ -29,7 +29,7 @@
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding Change, Converter={StaticResource UniversallyConverter}}"  Header="Änderung"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding ChangedOn}" Header="Zeitstempel"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding UserName}" Header="Benutzer"/>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding PropertyName, Converter={StaticResource UniversallyConverter}}"  Header="Wertname"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding PropertyName, Converter={StaticResource UniversallyConverter}}" Header="Wertname"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding OldValue, Converter={StaticResource UniversallyConverter}}" Header="Alter Wert"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding NewValue, Converter={StaticResource UniversallyConverter}}" Header="Neuer Wert"/>
             </telerik:RadTreeListView.Columns>

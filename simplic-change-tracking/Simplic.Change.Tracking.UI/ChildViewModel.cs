@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Simplic.Localization;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,6 +15,7 @@ namespace Simplic.Change.Tracking.UI
   
         ChangeTracking model;
         private IChangeTrackingService changeTrackingService;
+        private ILocalizationService localizationService;
         public ObservableCollection<ChildViewModel> props;
         private Variance variance;
         private IList<Variance> variances;
@@ -21,6 +23,7 @@ namespace Simplic.Change.Tracking.UI
         private bool isExpandable;
         private object oldValue;
         private string propertyName;
+        private string localizationKey;
         private object newValue;
 
         /// <summary>
@@ -46,6 +49,7 @@ namespace Simplic.Change.Tracking.UI
         private void init()
         {
             changeTrackingService = CommonServiceLocator.ServiceLocator.Current.GetInstance<IChangeTrackingService>();
+            localizationService = CommonServiceLocator.ServiceLocator.Current.GetInstance<ILocalizationService>();
             props = new ObservableCollection<ChildViewModel>();
             variances = new List<Variance>();
             this.isExpandable = true;
@@ -106,6 +110,10 @@ namespace Simplic.Change.Tracking.UI
         {
             get
             {
+                if (!(string.IsNullOrEmpty(localizationKey)))
+                {
+                    return localizationService.Translate(localizationKey);
+                }
                 return this.propertyName;
             }
             set
@@ -186,40 +194,37 @@ namespace Simplic.Change.Tracking.UI
             {
                 this.props = new ObservableCollection<ChildViewModel>();
                 string json = await Task.Run(() => changeTrackingService.GetJson(model.Ident));
-
+                string prop = "";
                 variances = JsonConvert.DeserializeObject<List<Variance>>(json);
                 foreach (var item in variances)
                 {
+                    if (item.Property.Split('.')[0].Equals(prop))
+                    {
 
+                    }
                     var child = new ChildViewModel
                     {
                         Change = model.CrudType,
                         PropertyName = item.Property,
                         NewValue = item.NewValue,
                         OldValue = item.OldValue,
+                        localizationKey = item.LocalizationKey,
                         UserName = model.UserName,
                         ChangedOn = model.TimeStampChange,
                         isExpandable = false
 
                     };
-                    if ((item.Property.Equals("SnapshotSeperator")))
-                    {
-                        child.isExpandable = true;
-                        child.Snapshot = new ChildViewModel();
-                        child.Snapshot.props.Add(new ChildViewModel
-                        {
-                            OldValue =""
-                        }
-                            );
-                        
-                    }
-                        
+                   OnPropertyChanged(nameof(propertyName));
+                    prop = item.Property;
+
+
                     props.Add(child);
                 }
 
 
 
                 this.OnPropertyChanged(nameof(Properties));
+                this.OnPropertyChanged(nameof(propertyName));
                 return;
             }
         }

@@ -12,23 +12,20 @@ namespace Simplic.Change.Tracking
     public class ChangeTrackingDisplayName : Attribute
     {
         private string key;
-        public ChangeTrackingDisplayName(string key)
+        public ChangeTrackingDisplayName()
         {
-            this.key = key;
         }
         /// <summary>
         /// Is the general key
         /// </summary>
         public string Key 
         {
-            get => key;
-            set => key = value;
+            get;
+            set;
         }
+        //[ChangeTrackingDisplayName(Key = "hr_is_sunday", ValueConverter ="company_name_converter")] 
+        public string ValueConverterName { get; set; }
         public string TargetWord { get; set; } = "";
     }
-    public class Person
-    {
-        [ChangeTrackingDisplayName("hr_key", TargetWord ="")]
-        public string Name { get; set; }
-    }
+
 }

@@ -22,5 +22,10 @@ namespace Simplic.Change.Tracking
         /// Gets or sets the new value
         /// </summary>
         public object NewValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets the attribute key which is used to get the translation
+        /// </summary>
+        public string LocalizationKey { get; set; }
     }
 }

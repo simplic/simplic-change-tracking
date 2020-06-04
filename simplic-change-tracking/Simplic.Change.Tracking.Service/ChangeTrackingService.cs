@@ -4,6 +4,7 @@ using Simplic.Session;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Simplic.Change.Tracking.Service
@@ -56,23 +57,28 @@ namespace Simplic.Change.Tracking.Service
             {
                 foreach (var difference in result.Differences)
                 {
+                    
                     Variance variance = new Variance
                     {
 
                         Property = difference.PropertyName,
                         OldValue = difference.Object1Value,
-                        NewValue = difference.Object2Value
+                        NewValue = difference.Object2Value,
+
                     };
-                    
+
                     var t = typeof(T);
                     var pi = t.GetProperty(difference.PropertyName);
-                    if (Attribute.IsDefined(pi, typeof(ChangeTrackingDisplayName)))
+
+                    if (pi != null && Attribute.IsDefined(pi, typeof(ChangeTrackingDisplayName)))
                     {
-                        variance.Property = "Hund";
-                        variance.OldValue = difference.Object1.GetType().GetProperty(difference.PropertyName).Attributes.ToString();
+                        var attr = (ChangeTrackingDisplayName[])pi.GetCustomAttributes(typeof(ChangeTrackingDisplayName), false);
+                        variance.LocalizationKey = attr[0].Key;
+
                     }
                     variances.Add(variance);
                 }
+                
 
             }
 
@@ -122,6 +128,7 @@ namespace Simplic.Change.Tracking.Service
                 TableName = tableName,
                 TimeStampChange = DateTime.Now,
                 CrudType = crudType,
+                UserName = sessionService.CurrentSession.UserName
 
 
             };

@@ -56,34 +56,7 @@ namespace Simplic.Change.Tracking.UI
                     return "Ja";
                 case "False":
                     return "Nein";
-                case "IsMonday":
-                    return "Montag";
-                case "IsTuesday":
-                    return "Dienstag";
-                case "IsWednesday":
-                    return "Mittwoch";
-                case "IsThursday":
-                    return "Donnerstag";
-                case "IsFriday":
-                    return "Freitag";
-                case "IsSaturday":
-                    return "Samstag";
-                case "IsSunday":
-                    return "Sonntag";
-                case "Monday":
-                    return "Montag";
-                case "Tuesday":
-                    return "Dienstag";
-                case "Wednesday":
-                    return "Mittwoch";
-                case "Thursday":
-                    return "Donnerstag";
-                case "Friday":
-                    return "Freitag";
-                case "Saturday":
-                    return "Samstag";
-                case "Sunday":
-                    return "Sonntag";
+                
                 case "WorkDays":
                     return "Arbeitstage";
 
