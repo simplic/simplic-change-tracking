@@ -250,5 +250,27 @@ namespace Simplic.Change.Tracking.Service
         {
             return requestChangeRepository.GetAllDeleted(tableName);
         }
+
+        public object GetPrimaryKey(object poco) 
+        {
+            var infos = poco.GetType().GetProperties();
+            object key = null;
+            foreach (var item in infos)
+            {
+
+
+                if (Attribute.IsDefined(item, typeof(TrackingKey)))
+                {
+                    var attr = (TrackingKey[])item.GetCustomAttributes(typeof(TrackingKey), false);
+                    key = item.GetValue(poco);
+
+                }
+            }
+            if (key == null)
+            {
+                throw new ChangeTrackingNotEnabledException();
+            }
+            return key;
+        }
     }
 }

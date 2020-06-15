@@ -8,6 +8,25 @@ namespace Simplic.Change.Tracking
 {
     public class ChangeTrackingKey 
     {
+        private object primaryKey;
+        private object trackableObject;
+        public ChangeTrackingKey()
+        {
+
+        }
+        public ChangeTrackingKey(object trackableObject, bool isPrimaryKey = false)
+        {
+            if (isPrimaryKey)
+            {
+                this.primaryKey = trackableObject;
+            }
+            else
+            {
+                this.trackableObject = trackableObject;
+            }
+        }
+
+        
         /// <summary>
         /// Gets or sets the primary key based on the object
         /// </summary>
@@ -18,5 +37,7 @@ namespace Simplic.Change.Tracking
         /// Gets or sets the object type as string 
         /// </summary>
         public string ObjectType { get; set; }
+
+        public object TrackableObject { get; set; }
     }
 }

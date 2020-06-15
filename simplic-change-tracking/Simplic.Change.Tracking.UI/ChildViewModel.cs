@@ -12,7 +12,7 @@ namespace Simplic.Change.Tracking.UI
 {
     public class ChildViewModel : ViewModelBase
     {
-  
+
         ChangeTracking model;
         private IChangeTrackingService changeTrackingService;
         private ILocalizationService localizationService;
@@ -195,13 +195,20 @@ namespace Simplic.Change.Tracking.UI
                 this.props = new ObservableCollection<ChildViewModel>();
                 string json = await Task.Run(() => changeTrackingService.GetJson(model.Ident));
                 string prop = "";
-                variances = JsonConvert.DeserializeObject<List<Variance>>(json);
-                foreach (var item in variances)
-                {
-                    if (item.Property.Split('.')[0].Equals(prop))
-                    {
 
-                    }
+                if ((variances == null || variances.Count() < 1))
+                {
+
+                    variances = JsonConvert.DeserializeObject<List<Variance>>(json);
+                }
+
+                for (int i = 0; i < variances.Count(); i++)
+                {
+                    // item kann sein das es aus punkten besteht
+                    // beispiel person.name
+                    //dann soll es verschachtelt sein 
+
+                    var item = variances[i];
                     var child = new ChildViewModel
                     {
                         Change = model.CrudType,
@@ -214,8 +221,32 @@ namespace Simplic.Change.Tracking.UI
                         isExpandable = false
 
                     };
-                   OnPropertyChanged(nameof(propertyName));
-                    prop = item.Property;
+                
+                    if (item.Property.Split('.').Length > 1)
+                    {
+                        var seperator = new ChildViewModel
+                        {
+                            PropertyName = item.Property.Split('.')[0]
+                        };
+                        if (!prop.Equals(item.Property.Split('.')[0]))
+                        {
+                            props.Add(seperator);
+                        }
+                        else
+                        {
+                            int j = props.Count;
+
+
+                            seperator = props[j];
+                        }
+                        child.PropertyName = child.PropertyName.Split('.')[1];
+                        seperator.props.Add(child);
+                        prop = item.Property.Split('.')[0];
+                        item = variances[++i];
+                        continue;
+                    }
+                    OnPropertyChanged(nameof(propertyName));
+
 
 
                     props.Add(child);
@@ -253,6 +284,6 @@ namespace Simplic.Change.Tracking.UI
             get => this.variances;
             set => this.variances = value;
         }
-        
+
     }
 }

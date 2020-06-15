@@ -43,6 +43,8 @@
   <ItemGroup>
     <Compile Include="ChangeTrackingDisplayName.cs" />
     <Compile Include="ChangeTrackingKey.cs" />
+    <Compile Include="ChangeTrackingNotEnabledException.cs" />
+    <Compile Include="TrackingKey.cs" />
     <Compile Include="CrudType.cs" />
     <Compile Include="IgnoreChangeTracking.cs" />
     <Compile Include="Interfaces\IChangeTrackingRepository.cs" />
