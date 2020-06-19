@@ -1,8 +1,12 @@
-﻿using KellermanSoftware.CompareNetObjects;
+﻿using JsonDiffPatchDotNet;
+using KellermanSoftware.CompareNetObjects;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Simplic.Change.Tracking.Schemas;
 using Simplic.Session;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace Simplic.Change.Tracking.Service
@@ -33,54 +37,63 @@ namespace Simplic.Change.Tracking.Service
         /// <returns>json serialized string</returns>
         public string DetailedCompare<T>(T oldValue, T newValue)
         {
-            IList<Variance> variances = new List<Variance>();
-            List<Type> AttributesToIgnoreList = new List<Type>();
-            AttributesToIgnoreList.Add(typeof(IgnoreChangeTracking));
-            ComparisonConfig comparisonConfig = new ComparisonConfig
-            {
-                MaxDifferences = 999,
-                CaseSensitive = true,
-                MaxStructDepth = 1,
-                AttributesToIgnore = AttributesToIgnoreList
-            };
-            CompareLogic compareLogic = new CompareLogic(comparisonConfig);
-            ComparisonResult result = compareLogic.Compare(oldValue, newValue);
+            var jsonOld = JsonConvert.SerializeObject(oldValue);
+            var jsonNew = JsonConvert.SerializeObject(newValue);
 
-            if (!result.AreEqual)
+            var jdp = new JsonDiffPatch();
+            var diff = jdp.Diff(jsonOld, jsonNew);
+            JObject jObject = JObject.Parse(diff);
+            ChangeTrackingObject changeTrackingObject = new ChangeTrackingObject();
+            changeTrackingObject.Schema = GetAttributes(oldValue);
+            changeTrackingObject.Schema = GetAttributes(newValue,null, changeTrackingObject.Schema);
+
+            changeTrackingObject.Data = jObject;
+            return JsonConvert.SerializeObject(changeTrackingObject);
+
+            
+        }
+        Schema GetAttributes(object obj, List<object> alreadyCompared = null, Schema schema = null)
+        {
+            if (schema == null)
+                schema = new Schema();
+            if (alreadyCompared == null)
+                alreadyCompared = new List<object>();
+
+            if (obj == null)
+                return schema;
+
+            var infos = obj.GetType().GetProperties();
+            
+            foreach (var info in infos)
             {
-                foreach (var difference in result.Differences)
+                if (alreadyCompared.Contains(info.PropertyType.FullName))
                 {
-                    
-                    Variance variance = new Variance
+                    continue;
+                }
+                else
+                {
+                    var attr = (ChangeTrackingDisplayName[])info.GetCustomAttributes(typeof(ChangeTrackingDisplayName), false);
+                    var propSchema = new PropertySchema();
+                    if (attr != null && attr.Length > 0)
                     {
+                        propSchema.LocalizationKey = attr[0].Key;
+                    }
 
-                        Property = difference.PropertyName,
-                        OldValue = difference.Object1Value,
-                        NewValue = difference.Object2Value,
+                    propSchema.Type = info.PropertyType.FullName;
 
-                    };
-
-                    var t = typeof(T);
-                    var pi = t.GetProperty(difference.PropertyName);
-
-                    if (pi != null && Attribute.IsDefined(pi, typeof(ChangeTrackingDisplayName)))
+                    if (!schema.Properties.ContainsKey(info.Name))
                     {
-                        var attr = (ChangeTrackingDisplayName[])pi.GetCustomAttributes(typeof(ChangeTrackingDisplayName), false);
-                        variance.LocalizationKey = attr[0].Key;
+                    schema.Properties.Add(info.Name, propSchema);
 
                     }
-                    variances.Add(variance);
+                    alreadyCompared.Add(info.PropertyType.FullName);
+                    GetAttributes(obj, alreadyCompared, schema);
                 }
-                
-
             }
-
-
-
-
-            var json = JsonConvert.SerializeObject(variances);
-            return json;
+            return schema;
         }
+
+       
 
         /// <summary>
         /// Gets the Request change based on an int 
@@ -246,7 +259,7 @@ namespace Simplic.Change.Tracking.Service
             return requestChangeRepository.GetAllDeleted(tableName);
         }
 
-        public object GetPrimaryKey(object poco) 
+        public object GetPrimaryKey(object poco)
         {
             var infos = poco.GetType().GetProperties();
             object key = null;

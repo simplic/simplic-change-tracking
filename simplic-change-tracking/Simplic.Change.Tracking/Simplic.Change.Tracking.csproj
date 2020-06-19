@@ -44,6 +44,9 @@
     <Compile Include="ChangeTrackingDisplayName.cs" />
     <Compile Include="ChangeTrackingKey.cs" />
     <Compile Include="ChangeTrackingNotEnabledException.cs" />
+    <Compile Include="Schema\ChangeTrackingObject.cs" />
+    <Compile Include="Schema\PropertySchema.cs" />
+    <Compile Include="Schema\Schema.cs" />
     <Compile Include="TrackingKey.cs" />
     <Compile Include="CrudType.cs" />
     <Compile Include="IgnoreChangeTracking.cs" />
@@ -55,6 +58,9 @@
     <Compile Include="Variance.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
+    </PackageReference>
     <PackageReference Include="Simplic.Data">
       <Version>1.6.120.322</Version>
     </PackageReference>
