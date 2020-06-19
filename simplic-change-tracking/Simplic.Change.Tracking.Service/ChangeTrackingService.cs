@@ -35,18 +35,13 @@ namespace Simplic.Change.Tracking.Service
         {
             IList<Variance> variances = new List<Variance>();
             List<Type> AttributesToIgnoreList = new List<Type>();
-
             AttributesToIgnoreList.Add(typeof(IgnoreChangeTracking));
-
             ComparisonConfig comparisonConfig = new ComparisonConfig
             {
                 MaxDifferences = 999,
                 CaseSensitive = true,
-                MaxStructDepth = 4,
-
+                MaxStructDepth = 1,
                 AttributesToIgnore = AttributesToIgnoreList
-
-
             };
             CompareLogic compareLogic = new CompareLogic(comparisonConfig);
             ComparisonResult result = compareLogic.Compare(oldValue, newValue);

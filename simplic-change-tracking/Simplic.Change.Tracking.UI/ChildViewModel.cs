@@ -235,8 +235,6 @@ namespace Simplic.Change.Tracking.UI
                         else
                         {
                             int j = props.Count;
-
-
                             seperator = props[j];
                         }
                         child.PropertyName = child.PropertyName.Split('.')[1];
