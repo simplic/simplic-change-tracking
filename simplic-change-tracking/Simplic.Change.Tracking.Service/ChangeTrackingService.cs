@@ -1,12 +1,10 @@
 ﻿using JsonDiffPatchDotNet;
-using KellermanSoftware.CompareNetObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Simplic.Change.Tracking.Schemas;
 using Simplic.Session;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 
 namespace Simplic.Change.Tracking.Service
@@ -40,19 +38,52 @@ namespace Simplic.Change.Tracking.Service
             var jsonOld = JsonConvert.SerializeObject(oldValue);
             var jsonNew = JsonConvert.SerializeObject(newValue);
 
-            var jdp = new JsonDiffPatch();
-            var diff = jdp.Diff(jsonOld, jsonNew);
-            JObject jObject = JObject.Parse(diff);
             ChangeTrackingObject changeTrackingObject = new ChangeTrackingObject();
-            changeTrackingObject.Schema = GetAttributes(oldValue);
-            changeTrackingObject.Schema = GetAttributes(newValue,null, changeTrackingObject.Schema);
+            List<object> list = new List<object>();
+            var jdp = new JsonDiffPatch();
+            //oldValue is null
+            if (oldValue == null && newValue != null)
+            {
+                changeTrackingObject.Data = JObject.Parse(jsonNew);
+                (list, changeTrackingObject.Schema) = GetAttributes(newValue);
+            }
+            //newValue is null
+            else if (oldValue != null && newValue == null)
+            {
+                changeTrackingObject.Data = JObject.Parse(jsonOld);
+                //Fill the schema with the old Value
+                (list, changeTrackingObject.Schema) = GetAttributes(oldValue);
 
-            changeTrackingObject.Data = jObject;
+            }
+            else
+            {
+
+                var diff = jdp.Diff(jsonOld, jsonNew);
+                if (diff != null)
+                {
+                JObject jObject = JObject.Parse(diff);
+                changeTrackingObject.Data = jObject;
+
+                }
+                //Fill the schema with the old Value
+                (list,changeTrackingObject.Schema) = GetAttributes(oldValue);
+                //Fill the schema with the new Value
+                (_, changeTrackingObject.Schema) = GetAttributes(newValue,list, changeTrackingObject.Schema);
+            }
+
             return JsonConvert.SerializeObject(changeTrackingObject);
 
-            
+
         }
-        Schema GetAttributes(object obj, List<object> alreadyCompared = null, Schema schema = null)
+
+        /// <summary>
+        /// Returns a schema to get the properties and the attribute assigned to it
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="alreadyCompared"></param>
+        /// <param name="schema"></param>
+        /// <returns></returns>
+        (List<object>,Schema) GetAttributes(object obj, List<object> alreadyCompared = null, Schema schema = null)
         {
             if (schema == null)
                 schema = new Schema();
@@ -60,13 +91,13 @@ namespace Simplic.Change.Tracking.Service
                 alreadyCompared = new List<object>();
 
             if (obj == null)
-                return schema;
+                return (alreadyCompared,schema);
 
             var infos = obj.GetType().GetProperties();
-            
+
             foreach (var info in infos)
             {
-                if (alreadyCompared.Contains(info.PropertyType.FullName))
+                if (alreadyCompared.Contains(info.DeclaringType.FullName + "." + info.Name))
                 {
                     continue;
                 }
@@ -80,20 +111,22 @@ namespace Simplic.Change.Tracking.Service
                     }
 
                     propSchema.Type = info.PropertyType.FullName;
+                    propSchema.Path = info.DeclaringType.FullName + "." + info.Name;
 
-                    if (!schema.Properties.ContainsKey(info.Name))
-                    {
-                    schema.Properties.Add(info.Name, propSchema);
 
-                    }
-                    alreadyCompared.Add(info.PropertyType.FullName);
-                    GetAttributes(obj, alreadyCompared, schema);
+                    schema.Properties.Add(propSchema);
+
+
+                    alreadyCompared.Add(info.DeclaringType.FullName + "." + info.Name);
+                    if (!info.PropertyType.IsPrimitive && info.PropertyType.IsClass && !info.PropertyType.IsNested)
+                        GetAttributes(info.GetValue(obj), alreadyCompared, schema);
+
                 }
             }
-            return schema;
+            return (alreadyCompared, schema);
         }
 
-       
+
 
         /// <summary>
         /// Gets the Request change based on an int 

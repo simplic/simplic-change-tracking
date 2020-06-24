@@ -12,10 +12,6 @@ namespace Simplic.Change.Tracking
     public class IgnoreChangeTracking : Attribute
     {
         
-        public IgnoreChangeTracking()
-        {
-            var a = new JsonIgnoreAttribute();    
-            
-        }
+        
     }
 }

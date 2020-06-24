@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Simplic.Change.Tracking.Schemas;
 using Simplic.Localization;
 using System;
 using System.Collections.Generic;
@@ -25,6 +27,7 @@ namespace Simplic.Change.Tracking.UI
         private string propertyName;
         private string localizationKey;
         private object newValue;
+        ChangeTrackingObject changeTrackingObject;
 
         /// <summary>
         /// Constructor to get the model - type request change
@@ -190,68 +193,98 @@ namespace Simplic.Change.Tracking.UI
 
         private async Task LoadChildren()
         {
+            bool found = false;
             if (this.props == null || this.props.Count() < 1)
             {
                 this.props = new ObservableCollection<ChildViewModel>();
                 string json = await Task.Run(() => changeTrackingService.GetJson(model.Ident));
-                string prop = "";
+                ChildViewModel child = new ChildViewModel();
 
-                if ((variances == null || variances.Count() < 1))
+                if (changeTrackingObject == null)
                 {
 
-                    variances = JsonConvert.DeserializeObject<List<Variance>>(json);
+                    changeTrackingObject = JsonConvert.DeserializeObject<ChangeTrackingObject>(json);
+
                 }
 
-                for (int i = 0; i < variances.Count(); i++)
+                var data = JObject.Parse(json);
+                data = changeTrackingObject.Data;
+
+
+                var toParse = new List<JToken>();
+                toParse.AddRange(data.Children<JToken>());
+
+
+
+                while (toParse.Count > 0)
                 {
-                    // item kann sein das es aus punkten besteht
-                    // beispiel person.name
-                    //dann soll es verschachtelt sein 
+                    var copy = toParse.ToList();
+                    var newItems = new List<JToken>();
 
-                    var item = variances[i];
-                    var child = new ChildViewModel
-                    {
-                        Change = model.CrudType,
-                        PropertyName = item.Property,
-                        NewValue = item.NewValue,
-                        OldValue = item.OldValue,
-                        localizationKey = item.LocalizationKey,
-                        UserName = model.UserName,
-                        ChangedOn = model.TimeStampChange,
-                        isExpandable = false
 
-                    };
-                
-                    if (item.Property.Split('.').Length > 1)
+                    foreach (var token in copy)
                     {
-                        var seperator = new ChildViewModel
+                        var firstvalue = token.Values().FirstOrDefault();
+                        child = new ChildViewModel();
+                        child.Change = model.CrudType;
+                        child.UserName = model.UserName;
+                        if (firstvalue.Type == JTokenType.Property)
                         {
-                            PropertyName = item.Property.Split('.')[0]
-                        };
-                        if (!prop.Equals(item.Property.Split('.')[0]))
-                        {
-                            props.Add(seperator);
+                            child.IsExpandable = true;
+                            child.PropertyName = firstvalue.ToString();
+
+                            newItems.AddRange(token.Children<JToken>());
                         }
                         else
                         {
-                            int j = props.Count;
-                            seperator = props[j];
+
+                            foreach (var item in changeTrackingObject.Schema.Properties)
+                            {
+                                if (item.LocalizationKey== null)
+                                {
+                                    continue;
+                                }
+                                if (item.Path.Contains(token.Path))
+                                {
+                                    child.localizationKey = item.LocalizationKey;
+                                    
+
+                                }
+                            }
+                            if (string.IsNullOrWhiteSpace(child.localizationKey))
+                            {
+                                child.localizationKey = token.Path;
+                            }
+
+                           // child.localizationKey = (from properties in changeTrackingObject.Schema.Properties
+                           //                          where (properties.LocalizationKey != null )
+                           //                          where properties.LocalizationKey.Equals(token.Path)
+                           //                          select properties).FirstOrDefault().LocalizationKey ?? "null";
+
+                            if (token.First.HasValues)
+                            {
+                                child.OldValue = token.First.First;
+                                child.NewValue = token.First.Last;
+
+                            }
+                            else
+                            {
+                                child.oldValue = token.First;
+                            }
+                            child.UserName = "";
+                            child.ChangedOn = model.TimeStampChange;
+                            child.IsExpandable = false;
+
                         }
-                        child.PropertyName = child.PropertyName.Split('.')[1];
-                        seperator.props.Add(child);
-                        prop = item.Property.Split('.')[0];
-                        item = variances[++i];
-                        continue;
+                        props.Add(child);
+
                     }
-                    OnPropertyChanged(nameof(propertyName));
 
-
-
-                    props.Add(child);
+                    toParse.Clear();
+                    toParse.AddRange(newItems);
                 }
 
-
-
+                OnPropertyChanged(nameof(propertyName));
                 this.OnPropertyChanged(nameof(Properties));
                 this.OnPropertyChanged(nameof(propertyName));
                 return;

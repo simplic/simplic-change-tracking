@@ -4,6 +4,7 @@ using Simplic.Data.Sql;
 using Simplic.Sql;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Simplic.Change.Tracking.Data.DB
 {
@@ -20,7 +21,11 @@ namespace Simplic.Change.Tracking.Data.DB
 
 
 
-
+        /// <summary>
+        /// Get the change tracking object based on id 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public ChangeTracking Get(Int64 id)
         {
             return sqlService.OpenConnection((c) =>
@@ -31,6 +36,11 @@ namespace Simplic.Change.Tracking.Data.DB
 
         }
 
+        /// <summary>
+        /// Get the changes based on a primaryKey, it differentiate between guid, long, int and string
+        /// </summary>
+        /// <param name="primaryKey"></param>
+        /// <returns></returns>
         public IEnumerable<ChangeTracking> GetChanges(object primaryKey)
         {
             if (primaryKey is Guid guid)
@@ -48,6 +58,11 @@ namespace Simplic.Change.Tracking.Data.DB
             });
         }
 
+        /// <summary>
+        /// Gets the json as an array of bytes based on a long 
+        /// </summary>
+        /// <param name="ident"></param>
+        /// <returns></returns>
         public byte[] GetJsonAsByteArray(long ident)
         {
             return sqlService.OpenConnection((c) =>
@@ -57,6 +72,11 @@ namespace Simplic.Change.Tracking.Data.DB
             });
         }
 
+        /// <summary>
+        /// Returns true if the save method is executed and the data is stored in the database
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public bool Save(ChangeTracking obj)
         {
             string sql = $"Insert into {TableName} ( JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName, DataType)" +
@@ -66,7 +86,7 @@ namespace Simplic.Change.Tracking.Data.DB
             {
                 c.Execute(sql, new
                 {
-                    JsonObject = obj.JsonObject,
+                    JsonObject = Encoding.UTF8.GetBytes(obj.JsonObject),
                     DataGuid = obj.DataGuid,
                     CrudType = obj.CrudType,
                     TableName = obj.TableName,
@@ -79,10 +99,16 @@ namespace Simplic.Change.Tracking.Data.DB
             return true;
         }
 
+        /// <summary>
+        /// Get Changes based on an object 
+        /// </summary>
+        /// <param name="poco"></param>
+        /// <param name="dataColumn"></param>
+        /// <returns></returns>
         public IEnumerable<ChangeTracking> GetChangesWithObject(ChangeTrackingKey poco, string dataColumn = "")
         {
 
-            
+
             var p = poco.PrimaryKey;
             if (p is Guid)
             {
@@ -110,6 +136,11 @@ namespace Simplic.Change.Tracking.Data.DB
 
         }
 
+        /// <summary>
+        /// Gets all deleted 
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
         public IEnumerable<ChangeTracking> GetAllDeleted(string tableName)
         {
             return sqlService.OpenConnection((c) =>

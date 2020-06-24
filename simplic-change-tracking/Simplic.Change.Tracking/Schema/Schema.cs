@@ -11,6 +11,6 @@ namespace Simplic.Change.Tracking.Schemas
         /// <summary>
         /// Get or sets the properties where the key is string and the value is the property schema 
         /// </summary>
-        public IDictionary<string, PropertySchema> Properties { get; set; } = new Dictionary<string, PropertySchema>();
+        public List<PropertySchema> Properties { get; set; } = new List<PropertySchema>();
     }
 }

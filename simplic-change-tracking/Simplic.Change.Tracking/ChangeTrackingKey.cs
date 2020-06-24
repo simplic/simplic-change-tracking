@@ -38,6 +38,9 @@ namespace Simplic.Change.Tracking
         /// </summary>
         public string ObjectType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the trackable object 
+        /// </summary>
         public object TrackableObject { get; set; }
     }
 }
