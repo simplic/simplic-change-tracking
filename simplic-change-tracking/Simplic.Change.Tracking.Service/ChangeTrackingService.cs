@@ -35,8 +35,8 @@ namespace Simplic.Change.Tracking.Service
         /// <returns>json serialized string</returns>
         public string DetailedCompare<T>(T oldValue, T newValue)
         {
-            var jsonOld = JsonConvert.SerializeObject(oldValue);
-            var jsonNew = JsonConvert.SerializeObject(newValue);
+            var jsonOld = JsonConvert.SerializeObject(oldValue, Formatting.Indented, new ChangeTrackingJsonConverter(typeof(T)));
+            var jsonNew = JsonConvert.SerializeObject(newValue, Formatting.Indented, new ChangeTrackingJsonConverter(typeof(T)));
 
             ChangeTrackingObject changeTrackingObject = new ChangeTrackingObject();
             List<object> list = new List<object>();
@@ -61,14 +61,14 @@ namespace Simplic.Change.Tracking.Service
                 var diff = jdp.Diff(jsonOld, jsonNew);
                 if (diff != null)
                 {
-                JObject jObject = JObject.Parse(diff);
-                changeTrackingObject.Data = jObject;
+                    JObject jObject = JObject.Parse(diff);
+                    changeTrackingObject.Data = jObject;
 
                 }
                 //Fill the schema with the old Value
-                (list,changeTrackingObject.Schema) = GetAttributes(oldValue);
+                (list, changeTrackingObject.Schema) = GetAttributes(oldValue);
                 //Fill the schema with the new Value
-                (_, changeTrackingObject.Schema) = GetAttributes(newValue,list, changeTrackingObject.Schema);
+                (_, changeTrackingObject.Schema) = GetAttributes(newValue, list, changeTrackingObject.Schema);
             }
 
             return JsonConvert.SerializeObject(changeTrackingObject);
@@ -83,7 +83,7 @@ namespace Simplic.Change.Tracking.Service
         /// <param name="alreadyCompared"></param>
         /// <param name="schema"></param>
         /// <returns></returns>
-        (List<object>,Schema) GetAttributes(object obj, List<object> alreadyCompared = null, Schema schema = null)
+        (List<object>, Schema) GetAttributes(object obj, List<object> alreadyCompared = null, Schema schema = null)
         {
             if (schema == null)
                 schema = new Schema();
@@ -91,7 +91,7 @@ namespace Simplic.Change.Tracking.Service
                 alreadyCompared = new List<object>();
 
             if (obj == null)
-                return (alreadyCompared,schema);
+                return (alreadyCompared, schema);
 
             var infos = obj.GetType().GetProperties();
 
@@ -171,7 +171,15 @@ namespace Simplic.Change.Tracking.Service
 
 
             };
-            requestChange = SetPrimaryKey<TModel, TId>(requestChange, primaryKey);
+            try
+            {
+                requestChange = SetPrimaryKey<TModel, TId>(requestChange, obj);
+            }
+            catch (ChangeTrackingNotEnabledException)
+            {
+
+                return;
+            }
 
             if (obj is ITrackable trackable && trackable.Snapshot != null)
             {
@@ -210,6 +218,12 @@ namespace Simplic.Change.Tracking.Service
         /// <returns></returns>
         private ChangeTracking SetPrimaryKey<TModel, TId>(ChangeTracking requestChange, object primaryKey)
         {
+            //Gets the primary key if the attribute is set
+
+            
+            primaryKey = GetPrimaryKey(primaryKey);
+
+
 
             if (primaryKey is Guid guid)
             {

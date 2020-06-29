@@ -184,20 +184,21 @@ namespace Simplic.Change.Tracking.UI
                 {
                     this.isExpanded = value;
 
-                    _ = this.LoadChildren();
+                    this.LoadChildren();
 
                     OnPropertyChanged("IsExpanded");
                 }
             }
         }
 
-        private async Task LoadChildren()
+        private void LoadChildren()
         {
-            bool found = false;
+
             if (this.props == null || this.props.Count() < 1)
             {
                 this.props = new ObservableCollection<ChildViewModel>();
-                string json = await Task.Run(() => changeTrackingService.GetJson(model.Ident));
+                string json = changeTrackingService.GetJson(model.Ident);
+                //string json = await Task.Run(() => changeTrackingService.GetJson(model.Ident));
                 ChildViewModel child = new ChildViewModel();
 
                 if (changeTrackingObject == null)
@@ -207,89 +208,138 @@ namespace Simplic.Change.Tracking.UI
 
                 }
 
-                var data = JObject.Parse(json);
-                data = changeTrackingObject.Data;
+
+                JObject data = changeTrackingObject.Data;
 
 
                 var toParse = new List<JToken>();
                 toParse.AddRange(data.Children<JToken>());
+                var list = Recursively(data.Properties());
+                props = list;
 
 
-
-                while (toParse.Count > 0)
-                {
-                    var copy = toParse.ToList();
-                    var newItems = new List<JToken>();
-
-
-                    foreach (var token in copy)
-                    {
-                        var firstvalue = token.Values().FirstOrDefault();
-                        child = new ChildViewModel();
-                        child.Change = model.CrudType;
-                        child.UserName = model.UserName;
-                        if (firstvalue.Type == JTokenType.Property)
-                        {
-                            child.IsExpandable = true;
-                            child.PropertyName = firstvalue.ToString();
-
-                            newItems.AddRange(token.Children<JToken>());
-                        }
-                        else
-                        {
-
-                            foreach (var item in changeTrackingObject.Schema.Properties)
-                            {
-                                if (item.LocalizationKey== null)
-                                {
-                                    continue;
-                                }
-                                if (item.Path.Contains(token.Path))
-                                {
-                                    child.localizationKey = item.LocalizationKey;
-                                    
-
-                                }
-                            }
-                            if (string.IsNullOrWhiteSpace(child.localizationKey))
-                            {
-                                child.localizationKey = token.Path;
-                            }
-
-                           // child.localizationKey = (from properties in changeTrackingObject.Schema.Properties
-                           //                          where (properties.LocalizationKey != null )
-                           //                          where properties.LocalizationKey.Equals(token.Path)
-                           //                          select properties).FirstOrDefault().LocalizationKey ?? "null";
-
-                            if (token.First.HasValues)
-                            {
-                                child.OldValue = token.First.First;
-                                child.NewValue = token.First.Last;
-
-                            }
-                            else
-                            {
-                                child.oldValue = token.First;
-                            }
-                            child.UserName = "";
-                            child.ChangedOn = model.TimeStampChange;
-                            child.IsExpandable = false;
-
-                        }
-                        props.Add(child);
-
-                    }
-
-                    toParse.Clear();
-                    toParse.AddRange(newItems);
-                }
-
+                //while (toParse.Count > 0)
+                //{
+                //    var copy = toParse.ToList();
+                //    var newItems = new List<JToken>();
+                //
+                //
+                //    foreach (var token in copy)
+                //    {
+                //        var firstvalue = token.Values().FirstOrDefault();
+                //        child = new ChildViewModel();
+                //        child.Change = model.CrudType;
+                //        child.UserName = model.UserName;
+                //        if (firstvalue.Type == JTokenType.Property)
+                //        {
+                //            child.IsExpandable = true;
+                //            child.PropertyName = firstvalue.ToString();
+                //            newItems.AddRange(token.Children<JToken>());
+                //        }
+                //        else
+                //        {
+                //            foreach (var item in changeTrackingObject.Schema.Properties)
+                //            {
+                //                if (item.LocalizationKey == null)
+                //                {
+                //                    continue;
+                //                }
+                //                if (item.Path.Contains(token.Path))
+                //                {
+                //                    child.localizationKey = item.LocalizationKey;
+                //                }
+                //            }
+                //            if (string.IsNullOrWhiteSpace(child.localizationKey))
+                //            {
+                //                child.localizationKey = token.Path;
+                //            }
+                //
+                //            if (token.First.HasValues)
+                //            {
+                //                child.OldValue = token.First.First;
+                //                child.NewValue = token.First.Last;
+                //            }
+                //            else
+                //            {
+                //                child.oldValue = token.First;
+                //            }
+                //            child.UserName = "";
+                //            child.ChangedOn = model.TimeStampChange;
+                //            child.IsExpandable = false;
+                //        }
+                //        props.Add(child);
+                //    }
+                //    toParse.Clear();
+                //    toParse.AddRange(newItems);
+                //}
                 OnPropertyChanged(nameof(propertyName));
                 this.OnPropertyChanged(nameof(Properties));
                 this.OnPropertyChanged(nameof(propertyName));
                 return;
             }
         }
+        ObservableCollection<ChildViewModel> Recursively(IEnumerable<JProperty> jProperties)
+        {
+            ObservableCollection<ChildViewModel> listOfAll = new ObservableCollection<ChildViewModel>();
+
+            foreach (JProperty jProperty in jProperties)
+            {
+                ChildViewModel child = new ChildViewModel
+                {
+                    Change = model.CrudType,
+                    ChangedOn = model.TimeStampChange,
+                    NewValue = jProperty.Value,
+                    PropertyName = jProperty.Name,
+                    UserName = model.UserName
+                };
+                if (jProperty.First.HasValues)
+                {
+                    child.OldValue = jProperty.First.First;
+                    child.NewValue = jProperty.First.Last;
+                }
+                else
+                {
+                    child.oldValue = jProperty.First;
+                }
+                foreach (var item in changeTrackingObject.Schema.Properties)
+                {
+                    if (item.LocalizationKey == null)
+                    {
+                        continue;
+                    }
+
+                    var str = item.Path.Substring(item.Path.Length - jProperty.Path.Length );
+                    if (str.Equals((jProperty.Path)))
+                    {
+                        child.localizationKey = item.LocalizationKey;
+                        continue;
+                    }
+                }
+
+
+                child.IsExpandable = false;
+
+                if (jProperty.Value.Type == JTokenType.Object)
+                {
+                    child.props = new ObservableCollection<ChildViewModel>();
+                    ObservableCollection<ChildViewModel> recuList = Recursively(((JObject)jProperty.Value).Properties());
+                    if (recuList.Count > 1)
+                    {
+                        child.isExpandable = true;
+                    }
+                    foreach (var item in recuList)
+                    {
+                        child.props.Add(item);
+                    }
+                }
+
+                listOfAll.Add(child);
+            }
+
+            return listOfAll;
+        }
+
+
         public bool IsExpandable
         {
             get
