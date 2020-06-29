@@ -14,13 +14,16 @@ namespace Simplic.Change.Tracking.UI
         private ILocalizationService localizationService;
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool val)
+            
+            if (value is bool || value is Boolean)
             {
+                var val = System.Convert.ToBoolean(value);
                 return BooleanToStringConverter(val);
             }
-            else if(value is string str)
+            else if(value is string  || value is String )
             {
-                return StringToStringConverter(str);
+                string s = System.Convert.ToString(value);
+                return StringToStringConverter(s);
             }
             else if (value is CrudType crud)
             {
