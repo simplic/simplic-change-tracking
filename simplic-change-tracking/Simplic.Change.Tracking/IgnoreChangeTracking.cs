@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 namespace Simplic.Change.Tracking
 {
     /// <summary>
-    ///  change tracking will ignore this property or class
+    ///  Change tracking will ignore this property or class
     /// </summary>
     public class IgnoreChangeTracking : Attribute
     {

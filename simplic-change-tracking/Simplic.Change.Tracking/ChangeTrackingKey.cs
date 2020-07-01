@@ -6,14 +6,23 @@ using System.Threading.Tasks;
 
 namespace Simplic.Change.Tracking
 {
-    public class ChangeTrackingKey 
+    public class ChangeTrackingKey
     {
         private object primaryKey;
         private object trackableObject;
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public ChangeTrackingKey()
         {
 
         }
+
+        /// <summary>
+        /// Constructor to pass a trackable object and a bool that indicates if its the primary key. Default is false
+        /// </summary>
+        /// <param name="trackableObject"></param>
+        /// <param name="isPrimaryKey"></param>
         public ChangeTrackingKey(object trackableObject, bool isPrimaryKey = false)
         {
             if (isPrimaryKey)
@@ -26,7 +35,7 @@ namespace Simplic.Change.Tracking
             }
         }
 
-        
+
         /// <summary>
         /// Gets or sets the primary key based on the object
         /// </summary>

@@ -9,7 +9,7 @@ using System.Windows.Data;
 
 namespace Simplic.Change.Tracking.UI
 {
-    public class UniversallyConverter : IValueConverter
+    public class ChangeTrackingValueConverter : IValueConverter
     {
         private ILocalizationService localizationService;
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

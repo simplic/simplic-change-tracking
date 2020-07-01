@@ -97,7 +97,7 @@ namespace Simplic.Change.Tracking.Service
 
             foreach (var info in infos)
             {
-                if (alreadyCompared.Contains(info.DeclaringType.FullName + "." + info.Name))
+                if (alreadyCompared.Contains($"{info.DeclaringType.FullName}.{info.Name}"))
                 {
                     continue;
                 }
@@ -111,13 +111,13 @@ namespace Simplic.Change.Tracking.Service
                     }
 
                     propSchema.Type = info.PropertyType.FullName;
-                    propSchema.Path = info.DeclaringType.FullName + "." + info.Name;
+                    propSchema.Path = $"{info.DeclaringType.FullName}.{info.Name}";
 
 
                     schema.Properties.Add(propSchema);
 
 
-                    alreadyCompared.Add(info.DeclaringType.FullName + "." + info.Name);
+                    alreadyCompared.Add($"{info.DeclaringType.FullName}.{info.Name}");
                     if (!info.PropertyType.IsPrimitive && info.PropertyType.IsClass && !info.PropertyType.IsNested)
                         GetAttributes(info.GetValue(obj), alreadyCompared, schema);
 
@@ -133,7 +133,7 @@ namespace Simplic.Change.Tracking.Service
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ChangeTracking Get(Int64 id)
+        public ChangeTracking Get(long id)
         {
             return requestChangeRepository.Get(id);
         }
@@ -301,6 +301,11 @@ namespace Simplic.Change.Tracking.Service
             return requestChangeRepository.GetChangesWithObject(poco, dataColumn);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
         public IEnumerable<ChangeTracking> GetAllDeleted(string tableName)
         {
             return requestChangeRepository.GetAllDeleted(tableName);

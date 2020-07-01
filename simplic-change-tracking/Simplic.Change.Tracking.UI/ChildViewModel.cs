@@ -113,7 +113,7 @@ namespace Simplic.Change.Tracking.UI
         {
             get
             {
-                if (!(string.IsNullOrEmpty(localizationKey)))
+                if (!(string.IsNullOrWhiteSpace(localizationKey)))
                 {
                     return localizationService.Translate(localizationKey);
                 }
@@ -186,7 +186,7 @@ namespace Simplic.Change.Tracking.UI
 
                     this.LoadChildren();
 
-                    OnPropertyChanged("IsExpanded");
+                    OnPropertyChanged(nameof(IsExpanded));
                 }
             }
         }
@@ -207,78 +207,23 @@ namespace Simplic.Change.Tracking.UI
                     changeTrackingObject = JsonConvert.DeserializeObject<ChangeTrackingObject>(json);
 
                 }
-
-
                 JObject data = changeTrackingObject.Data;
-
-
                 var toParse = new List<JToken>();
                 toParse.AddRange(data.Children<JToken>());
                 var list = Recursively(data.Properties());
                 props = list;
 
-
-                //while (toParse.Count > 0)
-                //{
-                //    var copy = toParse.ToList();
-                //    var newItems = new List<JToken>();
-                //
-                //
-                //    foreach (var token in copy)
-                //    {
-                //        var firstvalue = token.Values().FirstOrDefault();
-                //        child = new ChildViewModel();
-                //        child.Change = model.CrudType;
-                //        child.UserName = model.UserName;
-                //        if (firstvalue.Type == JTokenType.Property)
-                //        {
-                //            child.IsExpandable = true;
-                //            child.PropertyName = firstvalue.ToString();
-                //            newItems.AddRange(token.Children<JToken>());
-                //        }
-                //        else
-                //        {
-                //            foreach (var item in changeTrackingObject.Schema.Properties)
-                //            {
-                //                if (item.LocalizationKey == null)
-                //                {
-                //                    continue;
-                //                }
-                //                if (item.Path.Contains(token.Path))
-                //                {
-                //                    child.localizationKey = item.LocalizationKey;
-                //                }
-                //            }
-                //            if (string.IsNullOrWhiteSpace(child.localizationKey))
-                //            {
-                //                child.localizationKey = token.Path;
-                //            }
-                //
-                //            if (token.First.HasValues)
-                //            {
-                //                child.OldValue = token.First.First;
-                //                child.NewValue = token.First.Last;
-                //            }
-                //            else
-                //            {
-                //                child.oldValue = token.First;
-                //            }
-                //            child.UserName = "";
-                //            child.ChangedOn = model.TimeStampChange;
-                //            child.IsExpandable = false;
-                //        }
-                //        props.Add(child);
-                //    }
-                //    toParse.Clear();
-                //    toParse.AddRange(newItems);
-                //}
-                OnPropertyChanged(nameof(propertyName));
+                
                 this.OnPropertyChanged(nameof(Properties));
-                this.OnPropertyChanged(nameof(propertyName));
                 return;
             }
         }
-        ObservableCollection<ChildViewModel> Recursively(IEnumerable<JProperty> jProperties)
+        /// <summary>
+        /// Gets the child-view-model as a observable collection recursively to get nested children
+        /// </summary>
+        /// <param name="jProperties"></param>
+        /// <returns></returns>
+        private ObservableCollection<ChildViewModel> Recursively(IEnumerable<JProperty> jProperties)
         {
             ObservableCollection<ChildViewModel> listOfAll = new ObservableCollection<ChildViewModel>();
 
@@ -303,12 +248,12 @@ namespace Simplic.Change.Tracking.UI
                 }
                 foreach (var item in changeTrackingObject.Schema.Properties)
                 {
-                    if (item.LocalizationKey == null)
+                    if (string.IsNullOrWhiteSpace(item.LocalizationKey))
                     {
                         continue;
                     }
 
-                    var str = item.Path.Substring(item.Path.Length - jProperty.Path.Length );
+                    var str = item.Path.Substring(item.Path.Length - jProperty.Path.Length);
                     if (str.Equals((jProperty.Path)))
                     {
                         child.localizationKey = item.LocalizationKey;
@@ -358,7 +303,7 @@ namespace Simplic.Change.Tracking.UI
         }
 
         /// <summary>
-        /// Gets or sets the list of variance 
+        /// Gets or sets the list of variances 
         /// </summary>
         public IList<Variance> Variances
         {

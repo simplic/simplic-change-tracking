@@ -26,7 +26,7 @@ namespace Simplic.Change.Tracking.Data.DB
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ChangeTracking Get(Int64 id)
+        public ChangeTracking Get(long id)
         {
             return sqlService.OpenConnection((c) =>
             {
@@ -109,16 +109,16 @@ namespace Simplic.Change.Tracking.Data.DB
         {
 
 
-            var p = poco.PrimaryKey;
-            if (p is Guid)
+            var primaryKey = poco.PrimaryKey;
+            if (primaryKey is Guid)
             {
                 dataColumn = "DataGuid";
             }
-            if (p is string)
+            if (primaryKey is string)
             {
                 dataColumn = "DataString";
             }
-            if (p is int || p is long)
+            if (primaryKey is int || primaryKey is long)
             {
                 dataColumn = "DataLong";
             }
@@ -137,7 +137,7 @@ namespace Simplic.Change.Tracking.Data.DB
         }
 
         /// <summary>
-        /// Gets all deleted 
+        /// Gets all deleted change-tracking entries for a specific object or table
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
