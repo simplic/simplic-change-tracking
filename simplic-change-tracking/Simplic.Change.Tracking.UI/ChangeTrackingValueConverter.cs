@@ -14,7 +14,7 @@ namespace Simplic.Change.Tracking.UI
         private ILocalizationService localizationService;
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            
+            localizationService = CommonServiceLocator.ServiceLocator.Current.GetInstance<ILocalizationService>();
             if (value is bool || value is Boolean)
             {
                 var val = System.Convert.ToBoolean(value);
@@ -41,11 +41,11 @@ namespace Simplic.Change.Tracking.UI
             switch (crud)
             {
                 case CrudType.Insert:
-                    return "Erstellt";
+                    return localizationService.Translate("insert");
                 case CrudType.Update:
-                    return "Bearbeitet";
+                    return localizationService.Translate("update");
                 case CrudType.Delete:
-                    return "Gelöscht";
+                    return localizationService.Translate("delete");
                 
             }
             return crud;
@@ -56,12 +56,12 @@ namespace Simplic.Change.Tracking.UI
             switch (str)
             {
                 case "True":
-                    return "Ja";
+                    return localizationService.Translate("True");
                 case "False":
-                    return "Nein";
+                    return localizationService.Translate("False");
                 
                 case "WorkDays":
-                    return "Arbeitstage";
+                    return localizationService.Translate("hr_workdays");
 
 
 
@@ -80,7 +80,7 @@ namespace Simplic.Change.Tracking.UI
 
         private object BooleanToStringConverter(bool value)
         {
-            return value ? "Ja" : "Nein";
+            return value ? localizationService.Translate("true") : localizationService.Translate("false");
         }
 
     }

@@ -45,9 +45,12 @@
     <Compile Include="ChangeTrackingJsonConverter.cs" />
     <Compile Include="ChangeTrackingKey.cs" />
     <Compile Include="ChangeTrackingNotEnabledException.cs" />
+    <Compile Include="Interfaces\ISnapshotRepository.cs" />
+    <Compile Include="Interfaces\ISnapshotService.cs" />
     <Compile Include="Schema\ChangeTrackingObject.cs" />
     <Compile Include="Schema\PropertySchema.cs" />
     <Compile Include="Schema\Schema.cs" />
+    <Compile Include="Snapshot.cs" />
     <Compile Include="TrackingKey.cs" />
     <Compile Include="CrudType.cs" />
     <Compile Include="IgnoreChangeTracking.cs" />

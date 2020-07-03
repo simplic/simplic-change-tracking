@@ -1,6 +1,7 @@
 ﻿using JsonDiffPatchDotNet;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Simplic.Change.Tracking.Interfaces;
 using Simplic.Change.Tracking.Schemas;
 using Simplic.Session;
 using System;
@@ -13,16 +14,17 @@ namespace Simplic.Change.Tracking.Service
     {
         IChangeTrackingRepository requestChangeRepository;
         ISessionService sessionService;
-
+        ISnapshotService snapshotService;
         /// <summary>
         /// Constructor for dependency injection
         /// </summary>
         /// <param name="requestChangeRepository"></param>
         /// <param name="sessionService"></param>
-        public ChangeTrackingService(IChangeTrackingRepository requestChangeRepository, ISessionService sessionService)
+        public ChangeTrackingService(IChangeTrackingRepository requestChangeRepository, ISessionService sessionService, ISnapshotService snapshotService)
         {
             this.requestChangeRepository = requestChangeRepository;
             this.sessionService = sessionService;
+            this.snapshotService = snapshotService;
         }
 
 
@@ -143,9 +145,9 @@ namespace Simplic.Change.Tracking.Service
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public bool Save(ChangeTracking obj)
+        public bool Save(ChangeTracking obj, long ident)
         {
-            return requestChangeRepository.Save(obj);
+            return requestChangeRepository.Save(obj, ident);
         }
 
         /// <summary>
@@ -159,7 +161,7 @@ namespace Simplic.Change.Tracking.Service
         public void TrackChange<TModel, TId>(object obj, CrudType crudType, string tableName, object snapshot, object primaryKey)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
-
+            
             ChangeTracking requestChange = new ChangeTracking
             {
 
@@ -183,6 +185,7 @@ namespace Simplic.Change.Tracking.Service
 
             if (obj is ITrackable trackable && trackable.Snapshot != null)
             {
+                snapshot = trackable;
                 requestChange.JsonObject = DetailedCompare<TModel>((TModel)trackable.Snapshot, (TModel)obj);
             }
             else
@@ -191,8 +194,20 @@ namespace Simplic.Change.Tracking.Service
                 requestChange.JsonObject = DetailedCompare<TModel>((TModel)snapshot, (TModel)obj);
 
             }
+            
             requestChange.DataType = obj.ToString();
-            Save(requestChange);
+            
+            var index = GetLastIndex();
+            Save(requestChange, index);
+            Snapshot snapshotObject = new Snapshot
+            {
+
+                ChangeTrackingId = index,
+                JsonSnapshot = JsonConvert.SerializeObject(snapshot)
+            };
+            
+            snapshotService.Save(snapshotObject);
+
         }
 
         /// <summary>
@@ -219,11 +234,7 @@ namespace Simplic.Change.Tracking.Service
         private ChangeTracking SetPrimaryKey<TModel, TId>(ChangeTracking requestChange, object primaryKey)
         {
             //Gets the primary key if the attribute is set
-
-            
             primaryKey = GetPrimaryKey(primaryKey);
-
-
 
             if (primaryKey is Guid guid)
             {
@@ -331,6 +342,11 @@ namespace Simplic.Change.Tracking.Service
                 throw new ChangeTrackingNotEnabledException();
             }
             return key;
+        }
+
+        public long GetLastIndex()
+        {
+            return requestChangeRepository.GetLastIndex();
         }
     }
 }

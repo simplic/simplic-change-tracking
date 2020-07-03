@@ -77,15 +77,16 @@ namespace Simplic.Change.Tracking.Data.DB
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public bool Save(ChangeTracking obj)
+        public bool Save(ChangeTracking obj, long ident)
         {
-            string sql = $"Insert into {TableName} ( JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName, DataType)" +
+            string sql = $"Insert into {TableName} (Ident, JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName, DataType)" +
                     $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName, :DataType) ";
 
             sqlService.OpenConnection((c) =>
             {
                 c.Execute(sql, new
                 {
+                    Ident = ident,
                     JsonObject = Encoding.UTF8.GetBytes(obj.JsonObject),
                     DataGuid = obj.DataGuid,
                     CrudType = obj.CrudType,
@@ -94,7 +95,7 @@ namespace Simplic.Change.Tracking.Data.DB
                     UserId = obj.UserId,
                     UserName = obj.UserName,
                     DataType = obj.DataType
-                });
+                }); ;
             });
             return true;
         }
@@ -148,6 +149,16 @@ namespace Simplic.Change.Tracking.Data.DB
                 return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where tableName = :tableName ",
                     new { tableName = tableName });
             });
+        }
+
+        public long GetLastIndex()
+        {
+            long index = 0;
+            sqlService.OpenConnection((c) =>
+            {
+                index = c.QueryFirstOrDefault<long>($"SELECT GET_IDENTITY({TableName}) ");
+            });
+            return index;
         }
     }
 }
