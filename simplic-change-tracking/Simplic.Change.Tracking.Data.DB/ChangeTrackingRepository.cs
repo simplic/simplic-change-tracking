@@ -80,7 +80,7 @@ namespace Simplic.Change.Tracking.Data.DB
         public bool Save(ChangeTracking obj)
         {
             string sql = $"Insert into {TableName} (Ident, JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName, DataType)" +
-                    $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName, :DataType) ";
+                    $"Values (:Ident :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName, :DataType) ";
 
             sqlService.OpenConnection((c) =>
             {
