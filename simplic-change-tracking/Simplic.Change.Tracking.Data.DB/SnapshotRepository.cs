@@ -17,7 +17,7 @@ namespace Simplic.Change.Tracking.Data.DB
         {
             this.sqlService = sqlService;
         }
-        //Change later to Change_Tracking
+        
         public string TableName => "ChangeTracking_Snapshot";
 
         public bool Save(Snapshot snapshot)

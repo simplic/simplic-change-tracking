@@ -77,7 +77,7 @@ namespace Simplic.Change.Tracking.Data.DB
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public bool Save(ChangeTracking obj, long ident)
+        public bool Save(ChangeTracking obj)
         {
             string sql = $"Insert into {TableName} (Ident, JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName, DataType)" +
                     $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName, :DataType) ";
@@ -86,7 +86,7 @@ namespace Simplic.Change.Tracking.Data.DB
             {
                 c.Execute(sql, new
                 {
-                    Ident = ident,
+                    Ident = obj.Ident,
                     JsonObject = Encoding.UTF8.GetBytes(obj.JsonObject),
                     DataGuid = obj.DataGuid,
                     CrudType = obj.CrudType,
@@ -151,12 +151,12 @@ namespace Simplic.Change.Tracking.Data.DB
             });
         }
 
-        public long GetLastIndex()
+        public long GetNextIdent()
         {
             long index = 0;
             sqlService.OpenConnection((c) =>
             {
-                index = c.QueryFirstOrDefault<long>($"SELECT GET_IDENTITY({TableName}) ");
+                index = c.QueryFirstOrDefault<long>($"SELECT GET_IDENTITY('{TableName}') ");
             });
             return index;
         }

@@ -14,7 +14,7 @@ namespace Simplic.Change.Tracking
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        bool Save(ChangeTracking obj, long ident);
+        bool Save(ChangeTracking obj);
         
         /// <summary>
         /// Get a change tracking based on a long id
@@ -52,7 +52,7 @@ namespace Simplic.Change.Tracking
         /// <returns></returns>
         IEnumerable<ChangeTracking> GetAllDeleted(string tableName);
 
-        long GetLastIndex();
+        long GetNextIdent();
         
 
     }

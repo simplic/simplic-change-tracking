@@ -145,9 +145,9 @@ namespace Simplic.Change.Tracking.Service
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public bool Save(ChangeTracking obj, long ident)
+        public bool Save(ChangeTracking obj)
         {
-            return requestChangeRepository.Save(obj, ident);
+            return requestChangeRepository.Save(obj);
         }
 
         /// <summary>
@@ -197,8 +197,9 @@ namespace Simplic.Change.Tracking.Service
             
             requestChange.DataType = obj.ToString();
             
-            var index = GetLastIndex();
-            Save(requestChange, index);
+            var index = GetNextIdent();
+            requestChange.Ident = index;
+            Save(requestChange);
             Snapshot snapshotObject = new Snapshot
             {
 
@@ -344,9 +345,9 @@ namespace Simplic.Change.Tracking.Service
             return key;
         }
 
-        public long GetLastIndex()
+        public long GetNextIdent()
         {
-            return requestChangeRepository.GetLastIndex();
+            return requestChangeRepository.GetNextIdent();
         }
     }
 }
