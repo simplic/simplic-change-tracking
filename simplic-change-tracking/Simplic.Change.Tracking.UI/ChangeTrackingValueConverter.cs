@@ -41,11 +41,11 @@ namespace Simplic.Change.Tracking.UI
             switch (crud)
             {
                 case CrudType.Insert:
-                    return localizationService.Translate("insert");
+                    return localizationService.Translate("crud_insert");
                 case CrudType.Update:
-                    return localizationService.Translate("update");
+                    return localizationService.Translate("crud_update");
                 case CrudType.Delete:
-                    return localizationService.Translate("delete");
+                    return localizationService.Translate("crud_delete");
                 
             }
             return crud;

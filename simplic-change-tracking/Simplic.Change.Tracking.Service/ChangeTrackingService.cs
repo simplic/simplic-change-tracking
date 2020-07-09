@@ -120,8 +120,18 @@ namespace Simplic.Change.Tracking.Service
 
 
                     alreadyCompared.Add($"{info.DeclaringType.FullName}.{info.Name}");
-                    if (!info.PropertyType.IsPrimitive && info.PropertyType.IsClass && !info.PropertyType.IsNested)
+                    
+                    if (!info.PropertyType.IsPrimitive && info.PropertyType.IsClass && !info.PropertyType.IsNested && info != typeof(Array))
+                        try
+                        {
                         GetAttributes(info.GetValue(obj), alreadyCompared, schema);
+
+                        }
+                        catch (Exception)
+                        {
+
+                            
+                        }
 
                 }
             }
@@ -164,14 +174,11 @@ namespace Simplic.Change.Tracking.Service
             
             ChangeTracking requestChange = new ChangeTracking
             {
-
                 UserId = sessionService.CurrentSession.UserId,
                 TableName = tableName,
                 TimeStampChange = DateTime.Now,
                 CrudType = crudType,
                 UserName = sessionService.CurrentSession.UserName
-
-
             };
             try
             {
