@@ -57,8 +57,13 @@ namespace Simplic.Change.Tracking
         public string DataString { get; set; }
 
         /// <summary>
-        /// Gets or set the user name as string 
+        /// Gets or sets the user name as string 
         /// </summary>
         public string UserName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the data type  
+        /// </summary>
+        public string DataType { get; set; }
     }
 }

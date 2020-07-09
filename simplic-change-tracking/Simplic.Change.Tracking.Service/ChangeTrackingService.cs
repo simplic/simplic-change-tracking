@@ -1,9 +1,11 @@
-﻿using KellermanSoftware.CompareNetObjects;
+﻿using JsonDiffPatchDotNet;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Simplic.Change.Tracking.Interfaces;
+using Simplic.Change.Tracking.Schemas;
 using Simplic.Session;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Simplic.Change.Tracking.Service
@@ -12,16 +14,17 @@ namespace Simplic.Change.Tracking.Service
     {
         IChangeTrackingRepository requestChangeRepository;
         ISessionService sessionService;
-
+        ISnapshotService snapshotService;
         /// <summary>
         /// Constructor for dependency injection
         /// </summary>
         /// <param name="requestChangeRepository"></param>
         /// <param name="sessionService"></param>
-        public ChangeTrackingService(IChangeTrackingRepository requestChangeRepository, ISessionService sessionService)
+        public ChangeTrackingService(IChangeTrackingRepository requestChangeRepository, ISessionService sessionService, ISnapshotService snapshotService)
         {
             this.requestChangeRepository = requestChangeRepository;
             this.sessionService = sessionService;
+            this.snapshotService = snapshotService;
         }
 
 
@@ -34,44 +37,115 @@ namespace Simplic.Change.Tracking.Service
         /// <returns>json serialized string</returns>
         public string DetailedCompare<T>(T oldValue, T newValue)
         {
-            IList<Variance> variances = new List<Variance>();
+            var jsonOld = JsonConvert.SerializeObject(oldValue, Formatting.Indented, new ChangeTrackingJsonConverter(typeof(T)));
+            var jsonNew = JsonConvert.SerializeObject(newValue, Formatting.Indented, new ChangeTrackingJsonConverter(typeof(T)));
 
-
-            ComparisonConfig comparisonConfig = new ComparisonConfig
+            ChangeTrackingObject changeTrackingObject = new ChangeTrackingObject();
+            List<object> list = new List<object>();
+            var jdp = new JsonDiffPatch();
+            //oldValue is null
+            if (oldValue == null && newValue != null)
             {
-                MaxDifferences = 999,
-                CaseSensitive = true,
-                
-
-            };
-            CompareLogic compareLogic = new CompareLogic(comparisonConfig);
-            ComparisonResult result = compareLogic.Compare(oldValue, newValue);
-
-            if (!result.AreEqual)
+                changeTrackingObject.Data = JObject.Parse(jsonNew);
+                (list, changeTrackingObject.Schema) = GetAttributes(newValue);
+            }
+            //newValue is null
+            else if (oldValue != null && newValue == null)
             {
-                foreach (var difference in result.Differences)
-                {
-                    Variance variance = new Variance
-                    {
-                        Property = difference.PropertyName,
-                        OldValue = difference.Object1Value,
-                        NewValue = difference.Object2Value
-                    };
-
-                    variances.Add(variance);
-                }
+                changeTrackingObject.Data = JObject.Parse(jsonOld);
+                //Fill the schema with the old Value
+                (list, changeTrackingObject.Schema) = GetAttributes(oldValue);
 
             }
-            var json = JsonConvert.SerializeObject(variances);
-            return json;
+            else
+            {
+
+                var diff = jdp.Diff(jsonOld, jsonNew);
+                if (diff != null)
+                {
+                    JObject jObject = JObject.Parse(diff);
+                    changeTrackingObject.Data = jObject;
+
+                }
+                //Fill the schema with the old Value
+                (list, changeTrackingObject.Schema) = GetAttributes(oldValue);
+                //Fill the schema with the new Value
+                (_, changeTrackingObject.Schema) = GetAttributes(newValue, list, changeTrackingObject.Schema);
+            }
+
+            return JsonConvert.SerializeObject(changeTrackingObject);
+
+
         }
+
+        /// <summary>
+        /// Returns a schema to get the properties and the attribute assigned to it
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="alreadyCompared"></param>
+        /// <param name="schema"></param>
+        /// <returns></returns>
+        (List<object>, Schema) GetAttributes(object obj, List<object> alreadyCompared = null, Schema schema = null)
+        {
+            if (schema == null)
+                schema = new Schema();
+            if (alreadyCompared == null)
+                alreadyCompared = new List<object>();
+
+            if (obj == null)
+                return (alreadyCompared, schema);
+
+            var infos = obj.GetType().GetProperties();
+
+            foreach (var info in infos)
+            {
+                if (alreadyCompared.Contains($"{info.DeclaringType.FullName}.{info.Name}"))
+                {
+                    continue;
+                }
+                else
+                {
+                    var attr = (ChangeTrackingDisplayName[])info.GetCustomAttributes(typeof(ChangeTrackingDisplayName), false);
+                    var propSchema = new PropertySchema();
+                    if (attr != null && attr.Length > 0)
+                    {
+                        propSchema.LocalizationKey = attr[0].Key;
+                    }
+
+                    propSchema.Type = info.PropertyType.FullName;
+                    propSchema.Path = $"{info.DeclaringType.FullName}.{info.Name}";
+
+
+                    schema.Properties.Add(propSchema);
+
+
+                    alreadyCompared.Add($"{info.DeclaringType.FullName}.{info.Name}");
+                    
+                    if (!info.PropertyType.IsPrimitive && info.PropertyType.IsClass && !info.PropertyType.IsNested && info != typeof(Array))
+                        try
+                        {
+                        GetAttributes(info.GetValue(obj), alreadyCompared, schema);
+
+                        }
+                        catch (Exception)
+                        {
+
+                            
+                        }
+
+                }
+            }
+            return (alreadyCompared, schema);
+        }
+
+
 
         /// <summary>
         /// Gets the Request change based on an int 
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ChangeTracking Get(Int64 id)
+        public ChangeTracking Get(long id)
         {
             return requestChangeRepository.Get(id);
         }
@@ -97,30 +171,53 @@ namespace Simplic.Change.Tracking.Service
         public void TrackChange<TModel, TId>(object obj, CrudType crudType, string tableName, object snapshot, object primaryKey)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
-
+            
             ChangeTracking requestChange = new ChangeTracking
             {
-
                 UserId = sessionService.CurrentSession.UserId,
                 TableName = tableName,
                 TimeStampChange = DateTime.Now,
                 CrudType = crudType,
-
+                UserName = sessionService.CurrentSession.UserName
             };
-            requestChange = SetPrimaryKey<TModel, TId>(requestChange, primaryKey);
+            try
+            {
+                requestChange = SetPrimaryKey<TModel, TId>(requestChange, obj);
+            }
+            catch (ChangeTrackingNotEnabledException)
+            {
+
+                return;
+            }
 
             if (obj is ITrackable trackable && trackable.Snapshot != null)
             {
+                snapshot = trackable;
                 requestChange.JsonObject = DetailedCompare<TModel>((TModel)trackable.Snapshot, (TModel)obj);
             }
             else
             {
                 snapshot = CreateDeepCopy<TModel>(snapshot);
                 requestChange.JsonObject = DetailedCompare<TModel>((TModel)snapshot, (TModel)obj);
+
             }
+            
+            requestChange.DataType = obj.ToString();
+            
+            var index = GetNextIdent();
+            requestChange.Ident = index;
             Save(requestChange);
+            Snapshot snapshotObject = new Snapshot
+            {
+
+                ChangeTrackingId = index,
+                JsonSnapshot = JsonConvert.SerializeObject(snapshot)
+            };
+            
+            snapshotService.Save(snapshotObject);
+
         }
-        
+
         /// <summary>
         /// Creates a deep copy based on json serialize and deserialize 
         /// </summary>
@@ -144,6 +241,8 @@ namespace Simplic.Change.Tracking.Service
         /// <returns></returns>
         private ChangeTracking SetPrimaryKey<TModel, TId>(ChangeTracking requestChange, object primaryKey)
         {
+            //Gets the primary key if the attribute is set
+            primaryKey = GetPrimaryKey(primaryKey);
 
             if (primaryKey is Guid guid)
             {
@@ -216,50 +315,46 @@ namespace Simplic.Change.Tracking.Service
         /// </summary>
         /// <param name="primaryKey"></param>
         /// <returns></returns>
-        public IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "")
+        public IEnumerable<ChangeTracking> GetChangesWithObject(ChangeTrackingKey poco, string dataColumn = "")
         {
-            var infos = poco.GetType().GetProperties();
-            ;
-            object value = null;
-            foreach (var info in infos)
-            {
-
-                switch (info.Name)
-                {
-                    case ("Guid"):
-                        value = info.GetValue(poco);
-                        dataColumn = "DataGuid";
-                        break;
-                    case ("Identifier"):
-                        value = info.GetValue(poco);
-                        dataColumn = "DataString";
-                        break;
-                    case ("Id"):
-                    case ("Ident"):
-                        value = info.GetValue(poco);
-                        if (value is Guid guid)
-                        {
-                            dataColumn = "DataGuid";
-                        }
-                        else
-                        {
-                            dataColumn = "DataLong";
-                        }
-                        
-                        break;
-
-                    default:
-                        break;
-                        
-                }
-
-            }
-            return requestChangeRepository.GetChangesWithObject(value, dataColumn);
+            return requestChangeRepository.GetChangesWithObject(poco, dataColumn);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
         public IEnumerable<ChangeTracking> GetAllDeleted(string tableName)
         {
             return requestChangeRepository.GetAllDeleted(tableName);
+        }
+
+        public object GetPrimaryKey(object poco)
+        {
+            var infos = poco.GetType().GetProperties();
+            object key = null;
+            foreach (var item in infos)
+            {
+
+
+                if (Attribute.IsDefined(item, typeof(TrackingKey)))
+                {
+                    var attr = (TrackingKey[])item.GetCustomAttributes(typeof(TrackingKey), false);
+                    key = item.GetValue(poco);
+
+                }
+            }
+            if (key == null)
+            {
+                throw new ChangeTrackingNotEnabledException();
+            }
+            return key;
+        }
+
+        public long GetNextIdent()
+        {
+            return requestChangeRepository.GetNextIdent();
         }
     }
 }

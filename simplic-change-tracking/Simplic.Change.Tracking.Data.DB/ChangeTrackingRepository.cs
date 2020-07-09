@@ -4,6 +4,7 @@ using Simplic.Data.Sql;
 using Simplic.Sql;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Simplic.Change.Tracking.Data.DB
 {
@@ -11,7 +12,7 @@ namespace Simplic.Change.Tracking.Data.DB
     {
         private ISqlService sqlService;
         public ChangeTrackingRepository(ISqlService sqlService)
-           
+
         {
             this.sqlService = sqlService;
         }
@@ -20,8 +21,12 @@ namespace Simplic.Change.Tracking.Data.DB
 
 
 
-
-        public ChangeTracking Get(Int64 id)
+        /// <summary>
+        /// Get the change tracking object based on id 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ChangeTracking Get(long id)
         {
             return sqlService.OpenConnection((c) =>
             {
@@ -31,9 +36,14 @@ namespace Simplic.Change.Tracking.Data.DB
 
         }
 
+        /// <summary>
+        /// Get the changes based on a primaryKey, it differentiate between guid, long, int and string
+        /// </summary>
+        /// <param name="primaryKey"></param>
+        /// <returns></returns>
         public IEnumerable<ChangeTracking> GetChanges(object primaryKey)
         {
-            if(primaryKey is Guid guid)
+            if (primaryKey is Guid guid)
             {
                 return sqlService.OpenConnection((c) =>
                 {
@@ -48,6 +58,11 @@ namespace Simplic.Change.Tracking.Data.DB
             });
         }
 
+        /// <summary>
+        /// Gets the json as an array of bytes based on a long 
+        /// </summary>
+        /// <param name="ident"></param>
+        /// <returns></returns>
         public byte[] GetJsonAsByteArray(long ident)
         {
             return sqlService.OpenConnection((c) =>
@@ -57,34 +72,76 @@ namespace Simplic.Change.Tracking.Data.DB
             });
         }
 
+        /// <summary>
+        /// Returns true if the save method is executed and the data is stored in the database
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public bool Save(ChangeTracking obj)
         {
-            string sql = $"Insert into {TableName} ( JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName)" +
-                    $"Values ( :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName) ";
+            string sql = $"Insert into {TableName} (Ident, JsonObject, DataGuid, CrudType, TableName, TimeStampChange, UserId, UserName, DataType)" +
+                    $"Values (:Ident, :JsonObject, :DataGuid, :CrudType, :TableName, :TimeStampChange, :UserId, :UserName, :DataType) ";
 
             sqlService.OpenConnection((c) =>
             {
-                c.Execute(sql, new { JsonObject = obj.JsonObject, DataGuid = obj.DataGuid,
-                CrudType = obj.CrudType, TableName = obj.TableName, TimeStampChange = obj.TimeStampChange, UserId = obj.UserId, UserName = obj.UserName});
+                c.Execute(sql, new
+                {
+                    Ident = obj.Ident,
+                    JsonObject = Encoding.UTF8.GetBytes(obj.JsonObject),
+                    DataGuid = obj.DataGuid,
+                    CrudType = obj.CrudType,
+                    TableName = obj.TableName,
+                    TimeStampChange = obj.TimeStampChange,
+                    UserId = obj.UserId,
+                    UserName = obj.UserName,
+                    DataType = obj.DataType
+                }); ;
             });
             return true;
         }
 
-        public IEnumerable<ChangeTracking> GetChangesWithObject(object poco, string dataColumn = "")
+        /// <summary>
+        /// Get Changes based on an object 
+        /// </summary>
+        /// <param name="poco"></param>
+        /// <param name="dataColumn"></param>
+        /// <returns></returns>
+        public IEnumerable<ChangeTracking> GetChangesWithObject(ChangeTrackingKey poco, string dataColumn = "")
         {
-            //PlaceHolder if the datacolumn is null
-            if (dataColumn.Equals(""))
+
+
+            var primaryKey = poco.PrimaryKey;
+            if (primaryKey is Guid)
             {
                 dataColumn = "DataGuid";
             }
+            if (primaryKey is string)
+            {
+                dataColumn = "DataString";
+            }
+            if (primaryKey is int || primaryKey is long)
+            {
+                dataColumn = "DataLong";
+            }
+
+
             return sqlService.OpenConnection((c) =>
             {
-                return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where {dataColumn} = :primaryKey ",
-                    new { primaryKey = poco });
+                return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where {dataColumn} = :primaryKey and DataType = :DataType",
+                    new
+                    {
+                        primaryKey = poco.PrimaryKey,
+                        DataType = poco.ObjectType
+                    });
             });
 
         }
 
+        /// <summary>
+        /// Gets all deleted change-tracking entries for a specific object or table
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
         public IEnumerable<ChangeTracking> GetAllDeleted(string tableName)
         {
             return sqlService.OpenConnection((c) =>
@@ -92,6 +149,16 @@ namespace Simplic.Change.Tracking.Data.DB
                 return c.Query<ChangeTracking>($"Select DataGuid, CrudType, TableName, TimeStampChange, UserId, DataLong, DataString, UserName, Ident From {TableName} where tableName = :tableName ",
                     new { tableName = tableName });
             });
+        }
+
+        public long GetNextIdent()
+        {
+            long index = 0;
+            sqlService.OpenConnection((c) =>
+            {
+                index = c.QueryFirstOrDefault<long>($"SELECT GET_IDENTITY('{TableName}') ");
+            });
+            return index;
         }
     }
 }

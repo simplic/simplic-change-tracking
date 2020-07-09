@@ -32,7 +32,7 @@ namespace Simplic.Change.Tracking.UI
         {
             this.model = model;
             Initialize();
-            changeTrackingService.GetChanges(Guid.Parse("037AD2BD-E6C9-4247-B5AF-CE31509379DD"));
+            
             
             
         }
@@ -43,12 +43,11 @@ namespace Simplic.Change.Tracking.UI
         private void Initialize()
         {
             changeTrackingService = CommonServiceLocator.ServiceLocator.Current.GetInstance<IChangeTrackingService>();
-            var collection = changeTrackingService.GetChangesWithObject(changeTrackingKey.PrimaryKey);
+            var collection = changeTrackingService.GetChangesWithObject(changeTrackingKey);
             
             foreach (var item in collection)
             {
                 var model = new ChildViewModel(item);
-                model.ChangedOn = DateTime.Now;
                 Changes.Add(model);
             };
         }
@@ -60,9 +59,7 @@ namespace Simplic.Change.Tracking.UI
         {
             this.changeTrackingKey = changeTrackingKey;
             Initialize();
-            
             model = new ChangeTracking();
-            
         }
 
         /// <summary>

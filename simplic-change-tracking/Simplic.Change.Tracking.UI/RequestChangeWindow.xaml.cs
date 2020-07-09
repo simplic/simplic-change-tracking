@@ -26,10 +26,7 @@ namespace Simplic.Change.Tracking.UI
         {
             InitializeComponent();
             RadRibbonDataGroup.Visibility = Visibility.Collapsed;
-            if (key != null)
-            {
-                DataContext = new ChangeTrackingViewModel(key);
-            }
+            
             
         }
 
@@ -47,10 +44,7 @@ namespace Simplic.Change.Tracking.UI
             base.OnOpenPage(e);
         }
 
-        void IChangeTrackingWindow.ShowDialog()
-        {
-            throw new NotImplementedException();
-        }
+       
         public void SetKey(ChangeTrackingKey key)
         {
             this.key = key;

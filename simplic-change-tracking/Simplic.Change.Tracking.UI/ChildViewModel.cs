@@ -1,4 +1,7 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Simplic.Change.Tracking.Schemas;
+using Simplic.Localization;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,9 +14,10 @@ namespace Simplic.Change.Tracking.UI
 {
     public class ChildViewModel : ViewModelBase
     {
-  
+
         ChangeTracking model;
         private IChangeTrackingService changeTrackingService;
+        private ILocalizationService localizationService;
         public ObservableCollection<ChildViewModel> props;
         private Variance variance;
         private IList<Variance> variances;
@@ -21,7 +25,9 @@ namespace Simplic.Change.Tracking.UI
         private bool isExpandable;
         private object oldValue;
         private string propertyName;
+        private string localizationKey;
         private object newValue;
+        ChangeTrackingObject changeTrackingObject;
 
         /// <summary>
         /// Constructor to get the model - type request change
@@ -46,6 +52,7 @@ namespace Simplic.Change.Tracking.UI
         private void init()
         {
             changeTrackingService = CommonServiceLocator.ServiceLocator.Current.GetInstance<IChangeTrackingService>();
+            localizationService = CommonServiceLocator.ServiceLocator.Current.GetInstance<ILocalizationService>();
             props = new ObservableCollection<ChildViewModel>();
             variances = new List<Variance>();
             this.isExpandable = true;
@@ -106,6 +113,10 @@ namespace Simplic.Change.Tracking.UI
         {
             get
             {
+                if (!(string.IsNullOrWhiteSpace(localizationKey)))
+                {
+                    return localizationService.Translate(localizationKey);
+                }
                 return this.propertyName;
             }
             set
@@ -173,50 +184,107 @@ namespace Simplic.Change.Tracking.UI
                 {
                     this.isExpanded = value;
 
-                    _ = this.LoadChildren();
+                    this.LoadChildren();
 
-                    OnPropertyChanged("IsExpanded");
+                    OnPropertyChanged(nameof(IsExpanded));
                 }
             }
         }
 
-        private async Task LoadChildren()
+        private void LoadChildren()
         {
+
             if (this.props == null || this.props.Count() < 1)
             {
                 this.props = new ObservableCollection<ChildViewModel>();
-                string json = await Task.Run(() => changeTrackingService.GetJson(model.Ident));
+                string json = changeTrackingService.GetJson(model.Ident);
+                //string json = await Task.Run(() => changeTrackingService.GetJson(model.Ident));
+                ChildViewModel child = new ChildViewModel();
 
-                variances = JsonConvert.DeserializeObject<List<Variance>>(json);
-                foreach (var item in variances)
+                if (changeTrackingObject == null)
                 {
-                    if (!(item.Property.Equals("Snapshot")))
-                    {
 
-
-                        var child = new ChildViewModel
-                        {
-                            Change = model.CrudType,
-                            PropertyName = item.Property,
-                            NewValue = item.NewValue,
-                            OldValue = item.OldValue,
-                            UserName = model.UserName,
-                            ChangedOn = model.TimeStampChange,
-                            isExpandable = false
-
-                        };
-                       
-                        props.Add(child);
-                    }
+                    changeTrackingObject = JsonConvert.DeserializeObject<ChangeTrackingObject>(json);
 
                 }
+                JObject data = changeTrackingObject.Data;
+                var toParse = new List<JToken>();
+                toParse.AddRange(data.Children<JToken>());
+                var list = Recursively(data.Properties());
+                props = list;
 
-
-
+                
                 this.OnPropertyChanged(nameof(Properties));
                 return;
             }
         }
+        /// <summary>
+        /// Gets the child-view-model as a observable collection recursively to get nested children
+        /// </summary>
+        /// <param name="jProperties"></param>
+        /// <returns></returns>
+        private ObservableCollection<ChildViewModel> Recursively(IEnumerable<JProperty> jProperties)
+        {
+            ObservableCollection<ChildViewModel> listOfAll = new ObservableCollection<ChildViewModel>();
+
+            foreach (JProperty jProperty in jProperties)
+            {
+                ChildViewModel child = new ChildViewModel
+                {
+                    Change = model.CrudType,
+                    ChangedOn = model.TimeStampChange,
+                    NewValue = jProperty.Value,
+                    PropertyName = jProperty.Name,
+                    UserName = model.UserName
+                };
+                if (jProperty.First.HasValues)
+                {
+                    child.OldValue = jProperty.First.First;
+                    child.NewValue = jProperty.First.Last;
+                }
+                else
+                {
+                    child.oldValue = jProperty.First;
+                }
+                foreach (var item in changeTrackingObject.Schema.Properties)
+                {
+                    if (string.IsNullOrWhiteSpace(item.LocalizationKey))
+                    {
+                        continue;
+                    }
+
+                    var str = item.Path.Substring(item.Path.Length - jProperty.Path.Length);
+                    if (str.Equals((jProperty.Path)))
+                    {
+                        child.localizationKey = item.LocalizationKey;
+                        continue;
+                    }
+                }
+
+
+                child.IsExpandable = false;
+
+                if (jProperty.Value.Type == JTokenType.Object)
+                {
+                    child.props = new ObservableCollection<ChildViewModel>();
+                    ObservableCollection<ChildViewModel> recuList = Recursively(((JObject)jProperty.Value).Properties());
+                    if (recuList.Count > 1)
+                    {
+                        child.isExpandable = true;
+                    }
+                    foreach (var item in recuList)
+                    {
+                        child.props.Add(item);
+                    }
+                }
+
+                listOfAll.Add(child);
+            }
+
+            return listOfAll;
+        }
+
+
         public bool IsExpandable
         {
             get
@@ -233,10 +301,15 @@ namespace Simplic.Change.Tracking.UI
             get => props;
             set => props = value;
         }
+
+        /// <summary>
+        /// Gets or sets the list of variances 
+        /// </summary>
         public IList<Variance> Variances
         {
             get => this.variances;
             set => this.variances = value;
         }
+
     }
 }

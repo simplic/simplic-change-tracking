@@ -9,6 +9,8 @@ namespace Simplic.Change.Tracking
         bool IsTrackable<TModel>(object obj);
         TModel CreateDeepCopy<TModel>(object obj);
         string GetJson(long ident);
+        object GetPrimaryKey(object poco);
+
 
     }
 }
